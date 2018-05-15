@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A56CB4AD-D1EB-4042-9EE2-BEE6D6B151B7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SevenWonder</RootNamespace>
+    <AssemblyName>SevenWonder</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=4.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.4.1.1\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Serialization" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseEntities\ConflictToken.cs" />
+    <Compile Include="BaseEntities\ConstantValues.cs" />
+    <Compile Include="BaseEntities\GameStyle.cs" />
+    <Compile Include="BaseEntities\PlayerDirection.cs" />
+    <Compile Include="BaseEntities\BaseEnums.cs" />
+    <Compile Include="BaseEntities\TurnAction.cs" />
+    <Compile Include="CardGenerator\CardMappingHelper.cs" />
+    <Compile Include="Contracts\IPlayer.cs" />
+    <Compile Include="Contracts\ITurnPlayer.cs" />
+    <Compile Include="Entities\Events\BuildStageEvent.cs" />
+    <Compile Include="Entities\Events\DrawFromDiscardPileEvent.cs" />
+    <Compile Include="Entities\Events\DiscardCardEvent.cs" />
+    <Compile Include="Entities\TurnPlayer.cs" />
+    <Compile Include="Exceptions\TooManyException.cs" />
+    <Compile Include="Helper\LoggerHelper.cs" />
+    <Compile Include="Helper\NeighborsHelper.cs" />
+    <Compile Include="Services\Contracts\ITurnManager.cs" />
+    <Compile Include="Services\TurnManager.cs" />
+    <Compile Include="Helper\VictoryPointsHelper.cs" />
+    <Compile Include="Services\VictoryPoints\WonderCategory.cs" />
+    <Compile Include="Services\VictoryPoints\CivilianStructuresCategory.cs" />
+    <Compile Include="Services\VictoryPoints\ScientificStructuresCategory.cs" />
+    <Compile Include="Services\VictoryPoints\CommercialStructuresCategory.cs" />
+    <Compile Include="Services\VictoryPoints\GuildsCategory.cs" />
+    <Compile Include="Services\VictoryPoints\MilitaryConflictsCategory.cs" />
+    <Compile Include="Services\VictoryPoints\PointsCategory.cs" />
+    <Compile Include="Services\VictoryPoints\TreasuryContentsCategory.cs" />
+    <Compile Include="Utilities\NullUnitOfWork.cs" />
+    <Compile Include="Utilities\UnitOfWork.cs" />
+    <Compile Include="BaseEntities\WonderBoardSide.cs" />
+    <Compile Include="BaseEntities\WonderName.cs" />
+    <Compile Include="CardGenerator\CardCollection.cs" />
+    <Compile Include="BaseEntities\Age.cs" />
+    <Compile Include="BaseEntities\CardName.cs" />
+    <Compile Include="Contracts\IEffect.cs" />
+    <Compile Include="Contracts\IEvent.cs" />
+    <Compile Include="Contracts\IGamePlayer.cs" />
+    <Compile Include="Contracts\IProduction.cs" />
+    <Compile Include="Contracts\IStructureCard.cs" />
+    <Compile Include="Contracts\IResource.cs" />
+    <Compile Include="BaseEntities\WonderCard.cs" />
+    <Compile Include="Contracts\IUnitOfWork.cs" />
+    <Compile Include="Entities\Cards\BaseStructureCard.cs" />
+    <Compile Include="Entities\Cards\CivilianCard.cs" />
+    <Compile Include="Entities\Cards\CommercialCard.cs" />
+    <Compile Include="Entities\Effect.cs" />
+    <Compile Include="BaseEntities\StructureType.cs" />
+    <Compile Include="Contracts\IWonder.cs" />
+    <Compile Include="Contracts\IWonderStage.cs" />
+    <Compile Include="Entities\Events\AddCardEvent.cs" />
+    <Compile Include="Entities\Events\ClearTemporaryResourceEvent.cs" />
+    <Compile Include="Entities\Events\ReceiveCoinEvent.cs" />
+    <Compile Include="Entities\Events\PayCoinEvent.cs" />
+    <Compile Include="Entities\Events\EffectInfoEvent.cs" />
+    <Compile Include="Entities\Player.cs" />
+    <Compile Include="Entities\Wonders\BaseWonder.cs" />
+    <Compile Include="Entities\Wonders\ColossusWonder.cs" />
+    <Compile Include="Entities\Cards\GuildCard.cs" />
+    <Compile Include="Entities\Wonders\LighthouseWonder.cs" />
+    <Compile Include="Entities\Cards\ManufacturedGoodCard.cs" />
+    <Compile Include="Entities\Cards\MilitaryCard.cs" />
+    <Compile Include="Entities\Cards\RawMaterialCard.cs" />
+    <Compile Include="Entities\Cards\ScientificCard.cs" />
+    <Compile Include="Entities\Wonders\TempleOfArthemisWonder.cs" />
+    <Compile Include="Entities\Wonders\HangingGardensWonder.cs" />
+    <Compile Include="Entities\Wonders\StatueOfZeusWonder.cs" />
+    <Compile Include="Entities\Wonders\MausoleumWonder.cs" />
+    <Compile Include="Entities\Wonders\PyramidsWonder.cs" />
+    <Compile Include="Entities\Cards\NullStructureCard.cs" />
+    <Compile Include="Entities\WonderStage.cs" />
+    <Compile Include="Exceptions\NotEnoughException.cs" />
+    <Compile Include="Factories\StructureCardFactory.cs" />
+    <Compile Include="Factories\WonderFactory.cs" />
+    <Compile Include="Helper\ContainerSingleton.cs" />
+    <Compile Include="Helper\Enumerator.cs" />
+    <Compile Include="Helper\Randomizer.cs" />
+    <Compile Include="Helper\XmlSerializer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Contracts\IDeckOfCardsManager.cs" />
+    <Compile Include="Services\Contracts\IGamePointsManager.cs" />
+    <Compile Include="Services\Contracts\ITradeManager.cs" />
+    <Compile Include="Services\DeckOfCardsManager.cs" />
+    <Compile Include="GameFlowManager.cs" />
+    <Compile Include="Services\GamePointsManager.cs" />
+    <Compile Include="Services\TradeManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="unity.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\seven_wonders_deck.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
