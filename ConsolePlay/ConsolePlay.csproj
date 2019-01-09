@@ -53,12 +53,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SevenWonders\SevenWonders.csproj">
-      <Project>{a56cb4ad-d1eb-4042-9ee2-bee6d6b151b7}</Project>
-      <Name>SevenWonders</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

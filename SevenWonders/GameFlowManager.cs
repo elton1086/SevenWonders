@@ -18,7 +18,6 @@ namespace SevenWonder.Services
         IList<IStructureCard> discardPile = new List<IStructureCard>();
         IList<WonderCard> wonderCards;
         Age currentAge;
-        int currentTurn = 1;
         GameStyle style;
 
         public IList<ITurnPlayer> Players
@@ -41,10 +40,7 @@ namespace SevenWonder.Services
             get { return this.discardPile; }
         }
 
-        public int CurrentTurn
-        {
-            get { return this.currentTurn; }
-        }
+        public int CurrentTurn { get; private set; } = 1;
 
         public Age CurrentAge
         {
@@ -135,7 +131,7 @@ namespace SevenWonder.Services
         public void MoveToNextAge()
         {
             ++currentAge;
-            currentTurn = 1;
+            CurrentTurn = 1;
             StartAge();
         }
 
@@ -151,26 +147,26 @@ namespace SevenWonder.Services
 
         public void PlayTurn()
         {
-            LoggerHelper.InfoFormat("Play turn {0}.", currentTurn);
+            LoggerHelper.InfoFormat("Play turn {0}.", CurrentTurn);
             var uow = new UnitOfWork();
             ITurnManager turnManager = new TurnManager(uow);
-            turnManager.SetCurrentInfo(currentAge, currentTurn);
+            turnManager.SetCurrentInfo(currentAge, CurrentTurn);
             turnManager.Play(players, discardPile);
             uow.Commit();
-            LoggerHelper.InfoFormat("All plays commited.", currentTurn);
+            LoggerHelper.InfoFormat("All plays commited.", CurrentTurn);
         }
 
         public void CollectTurnRewards()
         {
             var uow = new UnitOfWork();
             ITurnManager turnManager = new TurnManager(uow);
-            turnManager.SetCurrentInfo(currentAge, currentTurn);
+            turnManager.SetCurrentInfo(currentAge, CurrentTurn);
             //Right now play seventh card is the only available reward that happens multiple times,
             //it needs to be played and commited before the rest of the plays as a player could discard the card and another player use it to buy from discard pile.
             turnManager.GetMultipleTimesRewards(players, discardPile);            
             uow.Commit();
             //If last turn of an age, needs to discard all left cards right away
-            if (currentTurn == ConstantValues.TURNS_BY_AGE)
+            if (CurrentTurn == ConstantValues.TURNS_BY_AGE)
             {
                 LoggerHelper.Debug("Moving all selectable cards left to discard pile");
                 DiscardLeftCards();
@@ -182,10 +178,10 @@ namespace SevenWonder.Services
         public void EndTurn()
         {
             ITurnManager turnManager = new TurnManager();
-            turnManager.SetCurrentInfo(currentAge, currentTurn);
+            turnManager.SetCurrentInfo(currentAge, CurrentTurn);
             turnManager.MoveSelectableCards(this.players);
             turnManager.InitializeTurnPlayers(this.players);
-            if (++currentTurn > ConstantValues.TURNS_BY_AGE)
+            if (++CurrentTurn > ConstantValues.TURNS_BY_AGE)
                 EndAge();
         }
 

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<CardCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://tempuri.org/CardCollection.xsd">
+  <CardMapping>
+    <CardMapping Type="Commercial" Name="WestTradingPost" MinimumPlayers="3" Age="I">
+      <ResourceCosts />
+      <CardCosts />
+      <Effects>
+        <Effect>
+          <Type>BuyRawMaterialDiscount</Type>
+          <Quantity>1</Quantity>
+          <AllDirections>2</AllDirections>
+        </Effect>
+      </Effects>
+    </CardMapping>
+  </CardMapping>
+</CardCollection>
