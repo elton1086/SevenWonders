@@ -12,27 +12,9 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
 {
     public class CommercialStructureCategoryTest
     {
-        private List<Player> players;
-        IEnumerable<StructureCard> cards;
-
-        public CommercialStructureCategoryTest()
+        private List<StructureCard> CreateCards()
         {
-            CreateCards();
-
-            players = new List<Player>
-            {
-                new TurnPlayer("jennifer"),
-                new TurnPlayer("jessica"),
-                new TurnPlayer("amanda")
-            };
-            ((GamePlayer)players[0]).SetWonder(WonderFactory.CreateWonder(WonderName.StatueOfZeusInOlimpia, WonderBoardSide.A));
-            ((GamePlayer)players[1]).SetWonder(WonderFactory.CreateWonder(WonderName.HangingGardensOfBabylon, WonderBoardSide.A));
-            ((GamePlayer)players[2]).SetWonder(WonderFactory.CreateWonder(WonderName.LighthouseOfAlexandria, WonderBoardSide.A));
-        }
-
-        private void CreateCards()
-        {
-            cards = new List<StructureCard>
+            return new List<StructureCard>
             {
                 new CommercialCard(CardName.ChamberOfCommerce, 3, Age.III, null, null, new List<Effect> { new Effect(EffectType.CoinPerManufacturedGoodCard, 2, PlayerDirection.Myself), new Effect(EffectType.VictoryPointPerManufacturedGoodCard, 2, PlayerDirection.Myself) }),
                 new CommercialCard(CardName.Haven, 3, Age.III, null, null, new List<Effect> { new Effect(EffectType.CoinPerRawMaterialCard, 1, PlayerDirection.Myself), new Effect(EffectType.VictoryPointPerRawMaterialCard, 1, PlayerDirection.Myself) }),
@@ -47,14 +29,19 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
         }
 
         [Theory, AutoBaseGameSetupData]
-        public void ComputePointsByWonderStageBuiltTest(CommercialStructuresCategory pointsCategory)
+        public void ComputePointsByWonderStageBuiltTest(CommercialStructuresCategory pointsCategory, List<GamePlayer> players)
         {
+            players[0].SetWonder(WonderFactory.CreateWonder(WonderName.StatueOfZeusInOlimpia, WonderBoardSide.A));
+            players[1].SetWonder(WonderFactory.CreateWonder(WonderName.HangingGardensOfBabylon, WonderBoardSide.A));
+            players[2].SetWonder(WonderFactory.CreateWonder(WonderName.LighthouseOfAlexandria, WonderBoardSide.A));
+
             players[0].Wonder.BuildStage();
             players[1].Wonder.BuildStage();
             players[1].Wonder.BuildStage();
 
-            players[1].Cards.Add(cards.First(c => c.Name == CardName.Arena));
-            players[2].Cards.Add(cards.First(c => c.Name == CardName.Arena));
+            var card = new CommercialCard(CardName.Arena, 3, Age.III, null, null, new List<Effect> { new Effect(EffectType.CoinPerWonderStageBuilt, 3, PlayerDirection.Myself), new Effect(EffectType.VictoryPointPerWonderStageBuilt, 1, PlayerDirection.Myself) });
+            players[1].Cards.Add(card);
+            players[2].Cards.Add(card);
 
             pointsCategory.ComputePoints(players);
 
@@ -63,9 +50,10 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             Assert.Equal(0, players[2].VictoryPoints);
         }
 
-        [Theory, AutoMoqData]
-        public void ComputePointsByCommercialTest(CommercialStructuresCategory pointsCategory)
+        [Theory, AutoBaseGameSetupData]
+        public void ComputePointsByCommercialTest(CommercialStructuresCategory pointsCategory, List<GamePlayer> players)
         {
+            var cards = CreateCards();
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Lighthouse));
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Forum));
             players[0].Cards.Add(cards.First(c => c.Name == CardName.LumberYard));
@@ -82,9 +70,10 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             Assert.Equal(2, players[2].VictoryPoints);
         }
 
-        [Theory, AutoMoqData]
-        public void ComputePointsByRawMaterialTest(CommercialStructuresCategory pointsCategory)
+        [Theory, AutoBaseGameSetupData]
+        public void ComputePointsByRawMaterialTest(CommercialStructuresCategory pointsCategory, List<GamePlayer> players)
         {
+            var cards = CreateCards();
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Haven));
             players[0].Cards.Add(cards.First(c => c.Name == CardName.TimberYard));
             players[0].Cards.Add(cards.First(c => c.Name == CardName.LumberYard));
@@ -100,9 +89,10 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             Assert.Equal(0, players[2].VictoryPoints);
         }
 
-        [Theory, AutoMoqData]
-        public void ComputePointsByManufacturedGoodTest(CommercialStructuresCategory pointsCategory)
+        [Theory, AutoBaseGameSetupData]
+        public void ComputePointsByManufacturedGoodTest(CommercialStructuresCategory pointsCategory, List<GamePlayer> players)
         {
+            var cards = CreateCards();
             players[0].Cards.Add(cards.First(c => c.Name == CardName.ChamberOfCommerce));
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Glassworks));
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Press));
@@ -118,9 +108,14 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             Assert.Equal(0, players[2].VictoryPoints);
         }
 
-        [Theory, AutoMoqData]
-        public void ComputePointsByManyTypesTest(CommercialStructuresCategory pointsCategory)
+        [Theory, AutoBaseGameSetupData]
+        public void ComputePointsByManyTypesTest(CommercialStructuresCategory pointsCategory, List<GamePlayer> players)
         {
+            var cards = CreateCards();
+            players[0].SetWonder(WonderFactory.CreateWonder(WonderName.StatueOfZeusInOlimpia, WonderBoardSide.A));
+            players[1].SetWonder(WonderFactory.CreateWonder(WonderName.HangingGardensOfBabylon, WonderBoardSide.A));
+            players[2].SetWonder(WonderFactory.CreateWonder(WonderName.LighthouseOfAlexandria, WonderBoardSide.A));
+
             players[0].Wonder.BuildStage();
             players[0].Cards.Add(cards.First(c => c.Name == CardName.ChamberOfCommerce));
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Glassworks));

@@ -52,8 +52,8 @@ namespace SevenWonders.UnitTest
             manager.CreateNewPlayer("tracy");
             manager.SetupGame();
             manager.StartAge();
-            Assert.All(manager.Players, p => Assert.Equal(7, p.SelectableCards.Count));
-            Assert.All(manager.Players, p => Assert.All(p.SelectableCards, c => Assert.Equal(Age.I, c.Age)));
+            Assert.All(manager.TurnPlayers, p => Assert.Equal(7, p.SelectableCards.Count));
+            Assert.All(manager.TurnPlayers, p => Assert.All(p.SelectableCards, c => Assert.Equal(Age.I, c.Age)));
         }        
     }
 }

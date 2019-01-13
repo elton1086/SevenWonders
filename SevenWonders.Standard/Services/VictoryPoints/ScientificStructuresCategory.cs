@@ -26,7 +26,7 @@ namespace SevenWonders.Services.VictoryPoints
             public int Total { get; set; }
         }
 
-        protected override void Compute(IList<Player> players)
+        protected override void Compute<TPlayer>(IList<TPlayer> players)
         {
             logger.Debug("Starting to compute scientific symbol victory points");
             foreach (var player in players)

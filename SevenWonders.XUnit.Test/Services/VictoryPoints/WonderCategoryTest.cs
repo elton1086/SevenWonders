@@ -11,27 +11,16 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
 {
     public class WonderCategoryTest
     {
-        List<Player> players;
-
-        public WonderCategoryTest()
+        [Theory, AutoBaseGameSetupData]
+        public void ComputeTest(WonderCategory pointsCategory, List<GamePlayer> players)
         {
-            players = new List<Player>
-            {
-                new TurnPlayer("angel"),
-                new TurnPlayer("barbara"),
-                new TurnPlayer("amy")
-            };
-            ((GamePlayer)players[0]).SetWonder(WonderFactory.CreateWonder(WonderName.StatueOfZeusInOlimpia, WonderBoardSide.B));
-            ((GamePlayer)players[1]).SetWonder(WonderFactory.CreateWonder(WonderName.HangingGardensOfBabylon, WonderBoardSide.A));
-            ((GamePlayer)players[2]).SetWonder(WonderFactory.CreateWonder(WonderName.LighthouseOfAlexandria, WonderBoardSide.A));
-        }
+            var player1 = players[0];
+            var player2 = players[1];
+            var player3 = players[2];
 
-        [Theory, AutoMoqData]
-        public void ComputeTest(WonderCategory pointsCategory)
-        {
-            var player1 = (TurnPlayer)players[0];
-            var player2 = (TurnPlayer)players[1];
-            var player3 = (TurnPlayer)players[2];
+            player1.SetWonder(WonderFactory.CreateWonder(WonderName.StatueOfZeusInOlimpia, WonderBoardSide.B));
+            player2.SetWonder(WonderFactory.CreateWonder(WonderName.HangingGardensOfBabylon, WonderBoardSide.A));
+            player3.SetWonder(WonderFactory.CreateWonder(WonderName.LighthouseOfAlexandria, WonderBoardSide.A));
 
             player1.Wonder.BuildStage();
             player1.Wonder.BuildStage();

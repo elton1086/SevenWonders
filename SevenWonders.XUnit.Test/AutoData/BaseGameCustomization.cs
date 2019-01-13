@@ -22,6 +22,8 @@ namespace SevenWonders.XUnit.Test.AutoData
                 .ToList();
 
             fixture.Register(() => players);
+
+            fixture.Register(() => players.Select(p => new TurnPlayer(p)).ToList());
         }
     }
 }

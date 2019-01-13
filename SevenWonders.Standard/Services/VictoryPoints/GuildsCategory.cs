@@ -17,7 +17,7 @@ namespace SevenWonders.Services.VictoryPoints
             this.logger = logger;
         }
 
-        protected override void Compute(IList<Player> players)
+        protected override void Compute<TPlayer>(IList<TPlayer> players)
         {
             logger.Debug("Starting to compute guild victory points");
             foreach (var p in players)

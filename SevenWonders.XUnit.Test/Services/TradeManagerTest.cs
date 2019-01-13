@@ -13,24 +13,6 @@ namespace SevenWonders.UnitTest.Services
 {
     public class TradeManagerTest
     {
-        public TradeManagerTest()
-        {
-            var players = new List<GamePlayer>
-            {
-                new TurnPlayer("angel"),
-                new TurnPlayer("joseph"),
-                new TurnPlayer("tina"),
-                new TurnPlayer("laura"),
-                new TurnPlayer("larry"),
-            };
-
-            players[0].SetWonder(WonderFactory.CreateWonder(WonderName.ColossusOfRhodes, WonderBoardSide.B));
-            players[1].SetWonder(WonderFactory.CreateWonder(WonderName.HangingGardensOfBabylon, WonderBoardSide.A));
-            players[2].SetWonder(WonderFactory.CreateWonder(WonderName.LighthouseOfAlexandria, WonderBoardSide.A));
-            players[3].SetWonder(WonderFactory.CreateWonder(WonderName.MausoleumOfHalicarnassus, WonderBoardSide.A));
-            players[4].SetWonder(WonderFactory.CreateWonder(WonderName.PyramidsOfGiza, WonderBoardSide.A));       
-        }
-
         [Theory, AutoMoqData]
         public void SetupCoinsFromBankTest(List<GamePlayer> players, TradeManager manager)
         {
@@ -59,7 +41,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(-2, players[4].ConflictTokenSum);
         }
 
-        [Theory, AutoBaseGameSetupData(4)]
+        [Theory, AutoBaseGameSetupData(5)]
         public void ResolveMilitaryConflictsForAgeTwoTest(TradeManager manager, List<GamePlayer> players)
         {
             var cards = CreateCards();
@@ -83,7 +65,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(2, players[4].ConflictTokenSum);
         }
 
-        [Theory, AutoBaseGameSetupData(4)]
+        [Theory, AutoBaseGameSetupData(5)]
         public void ResolveMilitaryConflictsForAgeThreeWithWonderTest(TradeManager manager, List<GamePlayer> players)
         {
             var cards = CreateCards();

@@ -23,10 +23,10 @@ namespace SevenWonders.Services
         public IList<StructureCard> FullDeckOfCards { get; private set; }
         public IList<WonderCard> WonderCards { get; private set; }
         public IList<StructureCard> DiscardPile { get; } = new List<StructureCard>();
+        public List<TurnPlayer> TurnPlayers { get; private set; }
         public int CurrentTurn { get; private set; } = 1;
         public Age CurrentAge { get; private set; } = Age.I;
-
-        protected List<TurnPlayer> TurnPlayers { get; private set; }
+        
 
         public GameFlowManager(IDeckOfCardsManager deckManager, IGamePointsManager gamePointsManager, ITradeManager tradeManager,
             ITurnManager turnManager, ICoreLogger logger)

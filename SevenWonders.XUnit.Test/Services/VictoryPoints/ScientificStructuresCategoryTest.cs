@@ -112,21 +112,14 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(5, output2.Count(s => s == ScientificSymbol.Gear));
         }
 
-        [Theory, AutoMoqData]
-        public void ComputeScientificCardsTest(ScientificStructuresCategory pointsCategory)
+        [Theory, AutoBaseGameSetupData]
+        public void ComputeScientificCardsTest(ScientificStructuresCategory pointsCategory, List<GamePlayer> players)
         {
             var cards = CreateCards();
 
-            var players = new List<Player>
-            {
-                new TurnPlayer("jennifer"),
-                new TurnPlayer("jessica"),
-                new TurnPlayer("amanda")
-            };
-
-            var player1 = (GamePlayer)players[0];
-            var player2 = (GamePlayer)players[1];
-            var player3 = (GamePlayer)players[2];
+            var player1 = players[0];
+            var player2 = players[1];
+            var player3 = players[2];
 
             player1.SetWonder(WonderFactory.CreateWonder(WonderName.StatueOfZeusInOlimpia, WonderBoardSide.A));
             player2.SetWonder(WonderFactory.CreateWonder(WonderName.HangingGardensOfBabylon, WonderBoardSide.A));

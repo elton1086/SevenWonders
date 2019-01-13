@@ -12,13 +12,13 @@ namespace SevenWonders.Services.VictoryPoints
             this.successor = successor;
         }        
 
-        public void ComputePoints(IList<Player> players)
+        public void ComputePoints<TPlayer>(IList<TPlayer> players) where TPlayer : Player
         {
             Compute(players);
             if (this.successor != null)
                 this.successor.ComputePoints(players);
         }
 
-        protected abstract void Compute(IList<Player> players);
+        protected abstract void Compute<TPlayer>(IList<TPlayer> players) where TPlayer : Player;
     }
 }
