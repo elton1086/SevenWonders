@@ -18,7 +18,9 @@ namespace SevenWonders.XUnit.Test.AutoData
         public void Customize(IFixture fixture)
         {
             var players = fixture
-                .CreateMany<GamePlayer>(totalPlayers)
+                .Build<GamePlayer>()
+                .Without(p => p.VictoryPoints)
+                .CreateMany(totalPlayers)
                 .ToList();
 
             fixture.Register(() => players);
