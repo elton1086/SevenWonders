@@ -34,10 +34,10 @@ namespace SevenWonders.Extensions
             }
         }
 
-        public static void InitializeTurnData(this IList<TurnPlayer> players)
+        public static void ResetTurnData(this IList<TurnPlayer> players)
         {
             foreach (var p in players)
-                p.InitializeTurnData();
+                p.ResetData();
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace SevenWonders.Entities
 {
-    public abstract class GamePlayer : Player
+    public class GamePlayer : Player
     {
         public GamePlayer(string name) : base(name) { }
 
@@ -77,7 +77,7 @@ namespace SevenWonders.Entities
         /// <param name="neededResources">Resources the player is in need of.</param>
         /// <param name="shareableOnly">Whether to select only resources that can be shared with other players or not.</param>
         /// <returns></returns>
-        public virtual IList<ResourceType> CheckResourceAvailability(IList<ResourceType> neededResources, bool shareableOnly)
+        public IList<ResourceType> CheckResourceAvailability(IList<ResourceType> neededResources, bool shareableOnly)
         {
             var resourcesNotAvailable = new List<ResourceType>();
             var standaloneResources = this.GetResourcesAvailable(shareableOnly);

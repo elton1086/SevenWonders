@@ -23,6 +23,12 @@ namespace SevenWonders.Services
             this.logger = logger;
         }
 
+        public IEnumerable<TurnPlayer> InitializeTurn(IEnumerable<GamePlayer> gamePlayers)
+        {
+            foreach (var p in gamePlayers)
+                yield return new TurnPlayer(p);
+        }
+
         public void SetScope(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
@@ -32,16 +38,16 @@ namespace SevenWonders.Services
         public void Play(IList<TurnPlayer> players, IList<StructureCard> discardedCards, Age age)
         {
             logger.Info("Starting to play turn for all players");
-            foreach (var player in players)
+            foreach (var p in players)
             {
-                var neighbors = NeighborsHelper.GetNeighbors(players.Select(p => (Player)p).ToList(), player);
-                Play(player, (GamePlayer)neighbors[NeighborsHelper.RIGHTDIRECTION], (GamePlayer)neighbors[NeighborsHelper.LEFTDIRECTION], discardedCards, age);
+                var neighbors = p.Player.GetNeighbors(players.Select(pl => pl.Player).ToList());
+                Play(p, (GamePlayer)neighbors[NeighborsHelper.RIGHTDIRECTION], (GamePlayer)neighbors[NeighborsHelper.LEFTDIRECTION], discardedCards, age);
             }
         }
 
         private void Play(TurnPlayer player, GamePlayer rightPlayer, GamePlayer leftPlayer, IList<StructureCard> discardedCards, Age age)
         {
-            logger.Debug("Player {0} will {1} {2}", player.Name, player.ChosenAction, player.SelectedCard.Name);
+            logger.Debug("Player {0} will {1} {2}", player.Player.Name, player.ChosenAction, player.SelectedCard.Name);
             var success = false;
             CheckResourcesToBorrow(player.SelectedCard, player, age);
             var canPlayCard = player.CanPlayCard;
@@ -69,7 +75,7 @@ namespace SevenWonders.Services
 
             if (!success)
             {
-                logger.Debug("Player {0} could not {1}. Selling and discarding card", player.Name, player.ChosenAction);
+                logger.Debug("Player {0} could not {1}. Selling and discarding card", player.Player.Name, player.ChosenAction);
                 SellCard(player, discardedCards);
                 player.ExecutedAction = TurnAction.SellCard;
             }
@@ -100,7 +106,7 @@ namespace SevenWonders.Services
             if (result)
             {
                 logger.Debug("Card can be bought");
-                unitOfWork.AddEvent(new AddCardEvent(player, card));
+                unitOfWork.AddEvent(new AddCardEvent(player.Player, card));
             }
             return result;
         }
@@ -112,12 +118,12 @@ namespace SevenWonders.Services
                 logger.Debug("Card is free.");
                 return true;
             }
-            if (HasDemandedCard(card, player.Cards))
+            if (HasDemandedCard(card, player.Player.Cards))
             {
                 logger.Debug("Player can build for free because of previous card");
                 return true;
             }
-            if (UseSpecialCase(player, specialCase, age))
+            if (UseSpecialCase(player.Player, specialCase, age))
             {
                 logger.Debug("Player can play card for free, because of {0}", specialCase);
                 return true;
@@ -126,10 +132,10 @@ namespace SevenWonders.Services
             var coins = card.ResourceCosts.Count(r => r == ResourceType.Coin);
             var resources = card.ResourceCosts.Where(r => r != ResourceType.Coin);
             logger.Debug("Structure card costs {0} coins and {1} resources", coins, resources.Count());
-            if (player.CoinsLeft >= coins && !player.CheckResourceAvailability(resources.ToList(), false).Any())
+            if (player.CoinsLeft >= coins && !player.Player.CheckResourceAvailability(resources.ToList(), false).Any())
             {
                 if (coins > 0)
-                    unitOfWork.AddEvent(new PayCoinEvent(player, coins));
+                    unitOfWork.AddEvent(new PayCoinEvent(player.Player, coins));
                 return true;
             }
 
@@ -169,22 +175,22 @@ namespace SevenWonders.Services
             if (result)
             {
                 logger.Debug("Wonder stage can be built");
-                unitOfWork.AddEvent(new BuildStageEvent(player));
+                unitOfWork.AddEvent(new BuildStageEvent(player.Player));
             }
             return result;
         }
 
         private bool TryBuildStage(TurnPlayer player)
         {
-            if (player.Wonder.NextStage == null)
+            if (player.Player.Wonder.NextStage == null)
                 return false;
-            var costs = player.Wonder.NextStage.Costs;
+            var costs = player.Player.Wonder.NextStage.Costs;
             var coins = costs.Count(r => r == ResourceType.Coin);
             var resources = costs.Where(r => r != ResourceType.Coin);
-            if (player.CoinsLeft >= coins && !player.CheckResourceAvailability(resources.ToList(), false).Any())
+            if (player.CoinsLeft >= coins && !player.Player.CheckResourceAvailability(resources.ToList(), false).Any())
             {
                 if (coins > 0)
-                    unitOfWork.AddEvent(new PayCoinEvent(player, coins));
+                    unitOfWork.AddEvent(new PayCoinEvent(player.Player, coins));
                 return true;
             }
             return false;
@@ -196,7 +202,7 @@ namespace SevenWonders.Services
         {
             logger.Debug("Discard {0} and collect coins", player.SelectedCard.Name);
             unitOfWork.AddEvent(new DiscardCardEvent(player.SelectedCard, discardedCards));
-            unitOfWork.AddEvent(new ReceiveCoinEvent(player, ConstantValues.SELL_CARD_COINS));
+            unitOfWork.AddEvent(new ReceiveCoinEvent(player.Player, ConstantValues.SELL_CARD_COINS));
         }
 
         private bool UseSpecialCase(GamePlayer player, SpecialCaseType specialCase, Age age)
@@ -240,12 +246,12 @@ namespace SevenWonders.Services
         {
             IList<ResourceType> missingResources = new List<ResourceType>();
 
-            if ((player.ChosenAction == TurnAction.BuyCard && (CanGetForFree(card) || HasDemandedCard(card, player.Cards))) || ValidSpecialCase(player, player.SpecialCaseToUse, age) != null)
+            if ((player.ChosenAction == TurnAction.BuyCard && (CanGetForFree(card) || HasDemandedCard(card, player.Player.Cards))) || ValidSpecialCase(player.Player, player.SpecialCaseToUse, age) != null)
                 return;
 
             IList<ResourceType> resourcesToCheck = new List<ResourceType>();
-            if (player.ChosenAction == TurnAction.BuildWonderStage && player.Wonder.NextStage != null)
-                foreach (var c in player.Wonder.NextStage.Costs)
+            if (player.ChosenAction == TurnAction.BuildWonderStage && player.Player.Wonder.NextStage != null)
+                foreach (var c in player.Player.Wonder.NextStage.Costs)
                     resourcesToCheck.Add(c);
             if (player.ChosenAction == TurnAction.BuyCard)
                 foreach (var c in card.ResourceCosts)
@@ -257,7 +263,7 @@ namespace SevenWonders.Services
                 if (index >= 0)
                     resourcesToCheck.RemoveAt(index);
             }
-            missingResources = player.CheckResourceAvailability(resourcesToCheck.Where(r => r != ResourceType.Coin).ToList(), false);
+            missingResources = player.Player.CheckResourceAvailability(resourcesToCheck.Where(r => r != ResourceType.Coin).ToList(), false);
 
             if (missingResources.Any())
                 logger.Debug("Will need to borrow {0} resources that were not set.", missingResources.Count);
@@ -277,24 +283,24 @@ namespace SevenWonders.Services
         public void GetMultipleTimesRewards(IList<TurnPlayer> players, IList<StructureCard> discardedCards, int turn, Age age)
         {
             logger.Info("Getting multiple times rewards for players.");
-            foreach (var player in players)
+            foreach (var p in players)
             {
-                var neighbors = NeighborsHelper.GetNeighbors(players.Select(p => (Player)p).ToList(), player);
-                foreach (var e in player.Wonder.EffectsAvailable)
-                    GetMultipleTimesRewards(e, player, (GamePlayer)neighbors[NeighborsHelper.RIGHTDIRECTION], (GamePlayer)neighbors[NeighborsHelper.LEFTDIRECTION], discardedCards, turn, age);
+                var neighbors = p.Player.GetNeighbors(players.Select(pl => pl.Player).ToList());
+                foreach (var e in p.Player.Wonder.EffectsAvailable)
+                    GetMultipleTimesRewards(e, p, (GamePlayer)neighbors[NeighborsHelper.RIGHTDIRECTION], (GamePlayer)neighbors[NeighborsHelper.LEFTDIRECTION], discardedCards, turn, age);
             }
         }
 
         public void GetRewards(IList<TurnPlayer> players, IList<StructureCard> discardedCards, Age age)
         {
             logger.Info("Getting rewards for players.");
-            foreach (var player in players)
+            foreach (var p in players)
             {
-                var neighbors = NeighborsHelper.GetNeighbors(players.Select(p => (Player)p).ToList(), player);
-                if (player.ExecutedAction == TurnAction.BuyCard)
-                    GetCardRewards(player, (GamePlayer)neighbors[NeighborsHelper.RIGHTDIRECTION], (GamePlayer)neighbors[NeighborsHelper.LEFTDIRECTION], discardedCards, age);
-                if (player.ExecutedAction == TurnAction.BuildWonderStage)
-                    GetWonderRewards(player, (GamePlayer)neighbors[NeighborsHelper.RIGHTDIRECTION], (GamePlayer)neighbors[NeighborsHelper.LEFTDIRECTION], discardedCards, age);
+                var neighbors = p.Player.GetNeighbors(players.Select(pl => pl.Player).ToList());
+                if (p.ExecutedAction == TurnAction.BuyCard)
+                    GetCardRewards(p, (GamePlayer)neighbors[NeighborsHelper.RIGHTDIRECTION], (GamePlayer)neighbors[NeighborsHelper.LEFTDIRECTION], discardedCards, age);
+                if (p.ExecutedAction == TurnAction.BuildWonderStage)
+                    GetWonderRewards(p, (GamePlayer)neighbors[NeighborsHelper.RIGHTDIRECTION], (GamePlayer)neighbors[NeighborsHelper.LEFTDIRECTION], discardedCards, age);
             }
         }
 
@@ -308,7 +314,7 @@ namespace SevenWonders.Services
                     switch (e.Type)
                     {
                         case EffectType.CopyGuildFromNeighbor:
-                            var neighbors = NeighborsHelper.GetNeighbors(players.Select(pl => (Player)pl).ToList(), p);
+                            var neighbors = p.GetNeighbors(players);
                             if (e.Info == null)
                                 break;
                             var selectedCard = (CardName)e.Info;
@@ -338,9 +344,9 @@ namespace SevenWonders.Services
 
         private void GetWonderRewards(TurnPlayer player, GamePlayer rightNeighbor, GamePlayer leftNeighbor, IList<StructureCard> discardedCards, Age age)
         {
-            if (player.Wonder.CurrentStage == null)
+            if (player.Player.Wonder.CurrentStage == null)
                 return;
-            foreach (var e in player.Wonder.CurrentStage.Effects)
+            foreach (var e in player.Player.Wonder.CurrentStage.Effects)
                 GetOneTimeRewards(e, player, rightNeighbor, leftNeighbor, age, discardedCards);
         }
 
@@ -349,36 +355,36 @@ namespace SevenWonders.Services
             switch (effect.Type)
             {
                 case EffectType.Coin:
-                    unitOfWork.AddEvent(new ReceiveCoinEvent(player, effect.Quantity));
-                    logger.Debug("Player {0} get {1} coins", player.Name, effect.Quantity);
+                    unitOfWork.AddEvent(new ReceiveCoinEvent(player.Player, effect.Quantity));
+                    logger.Debug("Player {0} get {1} coins", player.Player.Name, effect.Quantity);
                     break;
                 case EffectType.CoinPerRawMaterialCard:
-                    var rawMaterialCoins = GetCoinsForStructureType(player, rightNeighbor, leftNeighbor, StructureType.RawMaterial, effect.Direction) * effect.Quantity;
-                    unitOfWork.AddEvent(new ReceiveCoinEvent(player, rawMaterialCoins));
-                    logger.Debug("Player {0} get {1} coins because of {2}", player.Name, rawMaterialCoins, effect.Type);
+                    var rawMaterialCoins = GetCoinsForStructureType(player.Player, rightNeighbor, leftNeighbor, StructureType.RawMaterial, effect.Direction) * effect.Quantity;
+                    unitOfWork.AddEvent(new ReceiveCoinEvent(player.Player, rawMaterialCoins));
+                    logger.Debug("Player {0} get {1} coins because of {2}", player.Player.Name, rawMaterialCoins, effect.Type);
                     break;
                 case EffectType.CoinPerManufacturedGoodCard:
-                    var manufacturedCoins = GetCoinsForStructureType(player, rightNeighbor, leftNeighbor, StructureType.ManufacturedGood, effect.Direction) * effect.Quantity;
-                    unitOfWork.AddEvent(new ReceiveCoinEvent(player, manufacturedCoins));
-                    logger.Debug("Player {0} get {1} coins because of {2}", player.Name, manufacturedCoins, effect.Type);
+                    var manufacturedCoins = GetCoinsForStructureType(player.Player, rightNeighbor, leftNeighbor, StructureType.ManufacturedGood, effect.Direction) * effect.Quantity;
+                    unitOfWork.AddEvent(new ReceiveCoinEvent(player.Player, manufacturedCoins));
+                    logger.Debug("Player {0} get {1} coins because of {2}", player.Player.Name, manufacturedCoins, effect.Type);
                     break;
                 case EffectType.CoinPerCommercialCard:
-                    var commercialCoins = GetCoinsForStructureType(player, rightNeighbor, leftNeighbor, StructureType.Commercial, effect.Direction) * effect.Quantity;
-                    unitOfWork.AddEvent(new ReceiveCoinEvent(player, commercialCoins));
-                    logger.Debug("Player {0} get {1} coins because of {2}", player.Name, commercialCoins, effect.Type);
+                    var commercialCoins = GetCoinsForStructureType(player.Player, rightNeighbor, leftNeighbor, StructureType.Commercial, effect.Direction) * effect.Quantity;
+                    unitOfWork.AddEvent(new ReceiveCoinEvent(player.Player, commercialCoins));
+                    logger.Debug("Player {0} get {1} coins because of {2}", player.Player.Name, commercialCoins, effect.Type);
                     break;
                 case EffectType.CoinPerWonderStageBuilt:
-                    var stageCoins = GetCoinsForWonderStage(player, rightNeighbor, leftNeighbor, effect.Direction) * effect.Quantity;
-                    unitOfWork.AddEvent(new ReceiveCoinEvent(player, stageCoins));
-                    logger.Debug("Player {0} get {1} coins because of {2}", player.Name, stageCoins, effect.Type);
+                    var stageCoins = GetCoinsForWonderStage(player.Player, rightNeighbor, leftNeighbor, effect.Direction) * effect.Quantity;
+                    unitOfWork.AddEvent(new ReceiveCoinEvent(player.Player, stageCoins));
+                    logger.Debug("Player {0} get {1} coins because of {2}", player.Player.Name, stageCoins, effect.Type);
                     break;
                 case EffectType.PlayOneDiscardedCard:
                     var discarded = (StructureCard)player.AdditionalInfo;
                     if (!discardedCards.Contains(discarded))
                         throw new Exception("The card is not in discard pile.");
-                    logger.Debug("Player {0} plays discarded card {1}", player.Name, discarded.Name);
+                    logger.Debug("Player {0} plays discarded card {1}", player.Player.Name, discarded.Name);
                     unitOfWork.AddEvent(new DrawFromDiscardPileEvent(discarded, discardedCards));
-                    unitOfWork.AddEvent(new AddCardEvent(player, discarded));
+                    unitOfWork.AddEvent(new AddCardEvent(player.Player, discarded));
                     player.ExecutedAction = TurnAction.BuyCard;
                     player.SelectedCard = discarded;
                     GetCardRewards(player, rightNeighbor, leftNeighbor, discardedCards, age);
@@ -395,7 +401,7 @@ namespace SevenWonders.Services
                 case EffectType.PlaySeventhCard:
                     if (turn != 6)
                         break;
-                    logger.Debug("Player {0} plays extra card", player.Name);
+                    logger.Debug("Player {0} plays extra card", player.Player.Name);
                     player.SelectedCard = player.SelectableCards[0];
                     Play(player, rightNeighbor, leftNeighbor, discardedCards, age);
                     GetCardRewards(player, rightNeighbor, leftNeighbor, discardedCards, age);

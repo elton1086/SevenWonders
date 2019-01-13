@@ -23,7 +23,7 @@ namespace SevenWonders.Services.VictoryPoints
             foreach (var p in players)
             {
                 var cards = p.Cards.Where(c => c.Type == BaseEntities.StructureType.Guilds).ToList();
-                var neighbors = NeighborsHelper.GetNeighbors(players, p);
+                var neighbors = p.GetNeighbors(players);
                 var rightNeighbor = neighbors[NeighborsHelper.RIGHTDIRECTION];
                 var leftNeighbor = neighbors[NeighborsHelper.LEFTDIRECTION];
                 var sb = new StringBuilder();

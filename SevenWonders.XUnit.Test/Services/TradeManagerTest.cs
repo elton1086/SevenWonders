@@ -1,4 +1,5 @@
-﻿using SevenWonders.BaseEntities;
+﻿using AutoFixture;
+using SevenWonders.BaseEntities;
 using SevenWonders.Contracts;
 using SevenWonders.Entities;
 using SevenWonders.Factories;
@@ -12,12 +13,9 @@ namespace SevenWonders.UnitTest.Services
 {
     public class TradeManagerTest
     {
-        List<GamePlayer> players;
-        IEnumerable<StructureCard> cards;
-
         public TradeManagerTest()
         {
-            players = new List<GamePlayer>
+            var players = new List<GamePlayer>
             {
                 new TurnPlayer("angel"),
                 new TurnPlayer("joseph"),
@@ -30,42 +28,20 @@ namespace SevenWonders.UnitTest.Services
             players[1].SetWonder(WonderFactory.CreateWonder(WonderName.HangingGardensOfBabylon, WonderBoardSide.A));
             players[2].SetWonder(WonderFactory.CreateWonder(WonderName.LighthouseOfAlexandria, WonderBoardSide.A));
             players[3].SetWonder(WonderFactory.CreateWonder(WonderName.MausoleumOfHalicarnassus, WonderBoardSide.A));
-            players[4].SetWonder(WonderFactory.CreateWonder(WonderName.PyramidsOfGiza, WonderBoardSide.A));
-
-            CreateCards();            
-        }
-
-        private void CreateCards()
-        {
-            cards = new List<StructureCard>
-            {
-                new MilitaryCard(CardName.Stockade, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Shield, 1) }),
-                new MilitaryCard(CardName.Stables, 3, Age.II, null, null, new List<Effect> { new Effect(EffectType.Shield, 2) }),                
-                new MilitaryCard(CardName.Circus, 3, Age.III, null, null, new List<Effect> { new Effect(EffectType.Shield, 3) }),
-            };
+            players[4].SetWonder(WonderFactory.CreateWonder(WonderName.PyramidsOfGiza, WonderBoardSide.A));       
         }
 
         [Theory, AutoMoqData]
-        public void SetupCoinsFromBankTest(TradeManager manager)
+        public void SetupCoinsFromBankTest(List<GamePlayer> players, TradeManager manager)
         {
-            var players = new List<GamePlayer>();
-            players.Add(new TurnPlayer("travis"));
-            players.Add(new TurnPlayer("joe"));
             manager.SetupCoinsFromBank(players);
-            Assert.Equal(3, players[0].Coins);
+            Assert.All(players, p => Assert.Equal(3, p.Coins));
         }
 
-        [Theory, AutoMoqData]
-        public void SetupCoinsFromBankNoPlayerTest(TradeManager manager)
+        [Theory, AutoBaseGameSetupData(4)]
+        public void ResolveMilitaryConflictsForAgeOneTest(TradeManager manager, List<GamePlayer> players)
         {
-            var players = new List<GamePlayer>();
-            manager.SetupCoinsFromBank(players);
-            Assert.Empty(players);
-        }
-
-        [Theory, AutoMoqData]
-        public void ResolveMilitaryConflictsForAgeOneTest(TradeManager manager)
-        {            
+            var cards = CreateCards();
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
             players[1].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
@@ -73,6 +49,7 @@ namespace SevenWonders.UnitTest.Services
             players[1].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
             players[2].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
             players[3].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
+
             manager.ResolveMilitaryConflicts(players, Age.I);
 
             Assert.Equal(0, players[0].ConflictTokenSum);
@@ -82,9 +59,10 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(-2, players[4].ConflictTokenSum);
         }
 
-        [Theory, AutoMoqData]
-        public void ResolveMilitaryConflictsForAgeTwoTest(TradeManager manager)
+        [Theory, AutoBaseGameSetupData(4)]
+        public void ResolveMilitaryConflictsForAgeTwoTest(TradeManager manager, List<GamePlayer> players)
         {
+            var cards = CreateCards();
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
             players[1].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
@@ -105,9 +83,10 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(2, players[4].ConflictTokenSum);
         }
 
-        [Theory, AutoMoqData]
-        public void ResolveMilitaryConflictsForAgeThreeTest(TradeManager manager)
+        [Theory, AutoBaseGameSetupData(4)]
+        public void ResolveMilitaryConflictsForAgeThreeWithWonderTest(TradeManager manager, List<GamePlayer> players)
         {
+            var cards = CreateCards();
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
             players[0].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
             players[1].Cards.Add(cards.First(c => c.Name == CardName.Stockade));
@@ -134,6 +113,16 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(10, players[2].ConflictTokenSum);
             Assert.Equal(4, players[3].ConflictTokenSum);
             Assert.Equal(-2, players[4].ConflictTokenSum);
+        }
+
+        private IEnumerable<StructureCard> CreateCards()
+        {
+            return new List<StructureCard>
+            {
+                new MilitaryCard(CardName.Stockade, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Shield, 1) }),
+                new MilitaryCard(CardName.Stables, 3, Age.II, null, null, new List<Effect> { new Effect(EffectType.Shield, 2) }),
+                new MilitaryCard(CardName.Circus, 3, Age.III, null, null, new List<Effect> { new Effect(EffectType.Shield, 3) }),
+            };
         }
     }
 }

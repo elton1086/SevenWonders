@@ -34,7 +34,7 @@ namespace SevenWonders.UnitTest
             Assert.Equal(5, manager.Players.Count);
             //Base game has 7 wonders - number of players
             Assert.Equal(2, manager.WonderCards.Count);
-            Assert.NotEqual(manager.Players[1].Wonder.Name, manager.Players[3].Wonder.Name);
+            Assert.All(manager.Players.GroupBy(p => p.Wonder.Name), p => Assert.Single(p));
         }
 
         [Theory, AutoMoqData]

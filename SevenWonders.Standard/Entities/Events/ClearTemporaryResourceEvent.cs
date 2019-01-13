@@ -17,7 +17,7 @@ namespace SevenWonders.Entities.Events
         public void Commit()
         {
             temporary = player.TemporaryResources;
-            player.InitializeTurnData();
+            player.ResetData();
         }
     }
 }

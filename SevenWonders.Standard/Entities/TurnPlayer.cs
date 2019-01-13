@@ -6,12 +6,17 @@ using System.Linq;
 
 namespace SevenWonders.Entities
 {
-    public class TurnPlayer : GamePlayer
+    public class TurnPlayer
     {
         private StructureCard selectedCard;
 
-        public TurnPlayer(string name) : base(name) { }
+        public TurnPlayer(GamePlayer player)
+        {
+            Player = player;
+            ResetData();
+        }
 
+        public GamePlayer Player { get; private set; }
         /// <summary>
         /// Gets all the temporary resources the player has.
         /// </summary>
@@ -19,7 +24,7 @@ namespace SevenWonders.Entities
         /// <summary>
         /// Cards available to the player for this turn.
         /// </summary>
-        public IList<StructureCard> SelectableCards { get; private set; } = new List<StructureCard>();
+        public List<StructureCard> SelectableCards { get; } = new List<StructureCard>();
         /// <summary>
         /// Selected card.
         /// </summary>
@@ -69,14 +74,14 @@ namespace SevenWonders.Entities
             {
                 if (ChosenAction != TurnAction.BuyCard)
                     return true;
-                var result = Cards.Any(c => c.Name == SelectedCard.Name);
+                var result = Player.Cards.Any(c => c.Name == SelectedCard.Name);
                 return result;
             }
         }
 
-        public override IList<ResourceType> GetResourcesAvailable(bool shareableOnly)
+        public IList<ResourceType> GetResourcesAvailable(bool shareableOnly)
         {
-            var resourcesAvailable = base.GetResourcesAvailable(shareableOnly).ToList();
+            var resourcesAvailable = Player.GetResourcesAvailable(shareableOnly).ToList();
             if (shareableOnly)
                 return resourcesAvailable;
             resourcesAvailable.AddRange(TemporaryResources);
@@ -100,35 +105,22 @@ namespace SevenWonders.Entities
         {
             if (cards == null)
                 throw new NullReferenceException("cards cannot be null");
-            SelectableCards = new List<StructureCard>(cards);
+            SelectableCards.Clear();
+            SelectableCards.AddRange(cards);
         }
 
         /// <summary>
         /// Initialize all necessary data for the turn and clear temporary resources.
         /// </summary>
-        public void InitializeTurnData()
+        public void ResetData()
         {
             SelectedCard = null;
             ChosenAction = TurnAction.SellCard;
             SpecialCaseToUse = SpecialCaseType.None;
             ResourcesToBorrow.Clear();
             AdditionalInfo = null;
-            CoinsLeft = this.Coins;
+            CoinsLeft = Player.Coins;
             TemporaryResources.Clear();
-        }
-
-        /// <summary>
-        /// Clone this player.
-        /// </summary>
-        /// <returns></returns>
-        public TurnPlayer Clone()
-        {
-            var player = new TurnPlayer(this.Name);
-            player.SetWonder(this.Wonder);
-            player.ReceiveCoin(this.CoinsLeft);
-            ((List<StructureCard>)player.Cards).AddRange(this.Cards);
-            ((List<StructureCard>)player.SelectableCards).AddRange(this.SelectableCards);
-            return player;
         }
     }
 }

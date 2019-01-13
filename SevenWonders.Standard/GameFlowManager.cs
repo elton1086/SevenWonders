@@ -19,17 +19,14 @@ namespace SevenWonders.Services
         private readonly IDeckOfCardsManager deckManager;
         private readonly ICoreLogger logger;        
 
-        public IList<TurnPlayer> Players { get; } = new List<TurnPlayer>();
+        public IList<GamePlayer> Players { get; } = new List<GamePlayer>();
         public IList<StructureCard> FullDeckOfCards { get; private set; }
         public IList<WonderCard> WonderCards { get; private set; }
         public IList<StructureCard> DiscardPile { get; } = new List<StructureCard>();
         public int CurrentTurn { get; private set; } = 1;
         public Age CurrentAge { get; private set; } = Age.I;
 
-        protected IList<GamePlayer> BasePlayers
-        {
-            get { return Players.Select(p => (GamePlayer)p).ToList(); }
-        }
+        protected List<TurnPlayer> TurnPlayers { get; private set; }
 
         public GameFlowManager(IDeckOfCardsManager deckManager, IGamePointsManager gamePointsManager, ITradeManager tradeManager,
             ITurnManager turnManager, ICoreLogger logger)
@@ -43,7 +40,7 @@ namespace SevenWonders.Services
 
         public void CreateNewPlayer(string name)
         {
-            Players.Add(new Entities.TurnPlayer(name));
+            Players.Add(new Entities.GamePlayer(name));
         }
 
         public void SetupGame()
@@ -53,7 +50,7 @@ namespace SevenWonders.Services
                 logger.Info("Starting to setup the game.");
                 WonderCards = deckManager.GetShuffledWonderCards();
                 FullDeckOfCards = deckManager.GetShuffledDeck(Players.Count);
-                tradeManager.SetupCoinsFromBank(BasePlayers);
+                tradeManager.SetupCoinsFromBank(Players);
                 DrawWonderCards();
             }
             catch (Exception e)
@@ -67,9 +64,10 @@ namespace SevenWonders.Services
             try
             {
                 logger.Info("Starting age {0}.", CurrentAge.ToString());
+                logger.Info("Initialize player data.");
+                TurnPlayers = turnManager.InitializeTurn(Players).ToList();
+                logger.Debug("Deal cards.");
                 DealCards(CurrentAge);
-                logger.Info("Clear player data.");
-                Players.InitializeTurnData();
             }
             catch (Exception e)
             {
@@ -93,7 +91,7 @@ namespace SevenWonders.Services
         void DealCards(Age age)
         {
             var ageCards = FullDeckOfCards.Where(c => c.Age == age).ToList();
-            foreach (var p in Players)
+            foreach (var p in TurnPlayers)
             {
                 var initialCards = ageCards.Take(ConstantValues.PLAYER_CARDS_BY_AGE).ToList();
                 ageCards.RemoveRange(0, ConstantValues.PLAYER_CARDS_BY_AGE);
@@ -117,7 +115,7 @@ namespace SevenWonders.Services
 
         private void DiscardLeftCards()
         {
-            foreach (var p in Players)
+            foreach (var p in TurnPlayers)
                 foreach (var c in p.SelectableCards)
                 {
                     DiscardPile.Add(c);
@@ -130,7 +128,7 @@ namespace SevenWonders.Services
             logger.Info("Play turn {0}.", CurrentTurn);
             var uow = new UnitOfWork();
             turnManager.SetScope(uow);
-            turnManager.Play(Players, DiscardPile, CurrentAge);
+            turnManager.Play(TurnPlayers, DiscardPile, CurrentAge);
             uow.Commit();
             logger.Info("All plays commited.", CurrentTurn);
         }
@@ -141,7 +139,7 @@ namespace SevenWonders.Services
             turnManager.SetScope(uow);
             //Right now play seventh card is the only available reward that happens multiple times,
             //it needs to be played and commited before the rest of the plays as a player could discard the card and another player use it to buy from discard pile.
-            turnManager.GetMultipleTimesRewards(Players, DiscardPile, CurrentTurn, CurrentAge);            
+            turnManager.GetMultipleTimesRewards(TurnPlayers, DiscardPile, CurrentTurn, CurrentAge);            
             uow.Commit();
             //If last turn of an age, needs to discard all left cards right away
             if (CurrentTurn == ConstantValues.TURNS_BY_AGE)
@@ -149,7 +147,7 @@ namespace SevenWonders.Services
                 logger.Debug("Moving all selectable cards left to discard pile");
                 DiscardLeftCards();
             }
-            turnManager.GetRewards(Players, DiscardPile, CurrentAge);
+            turnManager.GetRewards(TurnPlayers, DiscardPile, CurrentAge);
             uow.Commit();
         }
 
@@ -157,9 +155,9 @@ namespace SevenWonders.Services
         {
             var direction = CurrentAge == Age.II ? "to the right" : "to the left";
             logger.Debug("Moving all selectable cards {0}", direction);
-            Players.MoveSelectableCards(CurrentAge);
+            TurnPlayers.MoveSelectableCards(CurrentAge);
             logger.Info("Clear player data for new turn.");
-            Players.InitializeTurnData();
+            TurnPlayers.ResetTurnData();
             if (++CurrentTurn > ConstantValues.TURNS_BY_AGE)
                 EndAge();
         }
@@ -168,14 +166,14 @@ namespace SevenWonders.Services
         {
             var uow = new UnitOfWork();
             turnManager.SetScope(uow);
-            turnManager.GetPostGameRewards(Players.Select(p => (GamePlayer)p).ToList());
+            turnManager.GetPostGameRewards(Players);
             uow.Commit();
         }
 
         public void ComputePoints()
         {
             logger.Info("Computing points to end the game and declare the winner.");
-            gamePointsManager.ComputeVictoryPoints(this.Players.Select(p => (Player)p).ToList());
+            gamePointsManager.ComputeVictoryPoints(Players.Select(p => p as Player).ToList());
         }
     }
 }

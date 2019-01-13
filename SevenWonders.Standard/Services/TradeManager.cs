@@ -55,7 +55,7 @@ namespace SevenWonders.Services
 
             var fromRight = data.Where(r => r.ChosenNeighbor == PlayerDirection.ToTheRight).Select(r => r.ResourceType).ToList();
             var fromLeft = data.Where(r => r.ChosenNeighbor == PlayerDirection.ToTheLeft).Select(r => r.ResourceType).ToList();
-            logger.Debug("Player {0} will borrow {1} resources from right neighbor and {2} resources from left neighbor.", player.Name, fromRight.Count, fromLeft.Count);
+            logger.Debug("Player {0} will borrow {1} resources from right neighbor and {2} resources from left neighbor.", player.Player.Name, fromRight.Count, fromLeft.Count);
 
             var missingFromRight = BorrowResourceFromNeighbor(rightNeighbor, fromRight);
             var missingFromLeft = BorrowResourceFromNeighbor(leftNeighbor, fromLeft);
@@ -66,7 +66,7 @@ namespace SevenWonders.Services
                 if (!allowAutomaticChoice)
                     return false;
 
-                logger.Debug("Player {0} could not borrow {1} resources from right neighbor and {2} resources from left neighbor.", player.Name, fromRight.Count, fromLeft.Count);
+                logger.Debug("Player {0} could not borrow {1} resources from right neighbor and {2} resources from left neighbor.", player.Player.Name, fromRight.Count, fromLeft.Count);
                 //Move missing resources between neighbors and try to borrow again.
                 RemoveResourcesAndAddRange(fromRight, missingFromRight, missingFromLeft);
                 RemoveResourcesAndAddRange(fromLeft, missingFromLeft, missingFromRight);
@@ -85,17 +85,17 @@ namespace SevenWonders.Services
             //Checks if got enough coins to pay.
             foreach (var d in data)
             {
-                player.CoinsLeft -= player.HasDiscount(d.ChosenNeighbor, Enumerator.GetTradeDiscountType(d.ResourceType)) ? ConstantValues.COIN_VALUE_FOR_SHARE_DISCOUNT : ConstantValues.COIN_VALUE_FOR_SHARE_DEFAULT;
+                player.CoinsLeft -= player.Player.HasDiscount(d.ChosenNeighbor, Enumerator.GetTradeDiscountType(d.ResourceType)) ? ConstantValues.COIN_VALUE_FOR_SHARE_DISCOUNT : ConstantValues.COIN_VALUE_FOR_SHARE_DEFAULT;
                 if (player.CoinsLeft < 0)
                 {
-                    logger.Debug("Player {0} cannot afford costs in coins. Will not be able to borrow resources.", player.Name);
+                    logger.Debug("Player {0} cannot afford costs in coins. Will not be able to borrow resources.", player.Player.Name);
                     return false;
                 }
             }
 
             //If everything went ok
             player.AddTemporaryResources(data.Select(r => r.ResourceType).ToList());
-            SaveEventOperations(player, rightNeighbor, leftNeighbor, data);
+            SaveEventOperations(player.Player, rightNeighbor, leftNeighbor, data);
             return true;
         }
 
@@ -148,16 +148,16 @@ namespace SevenWonders.Services
         public void ResolveMilitaryConflicts(IList<GamePlayer> players, Age age)
         {
             logger.Info("Resolving military conflicts.");
-            foreach (var player in players)
+            foreach (var p in players)
             {
-                var neighbors = NeighborsHelper.GetNeighbors(players.Select(p => (Player)p).ToList(), player);
-                var rightPlayer = (GamePlayer)neighbors[NeighborsHelper.RIGHTDIRECTION];
-                var leftPlayer = (GamePlayer)neighbors[NeighborsHelper.LEFTDIRECTION];
+                var neighbors = p.GetNeighbors(players);
+                var rightPlayer = neighbors[NeighborsHelper.RIGHTDIRECTION];
+                var leftPlayer = neighbors[NeighborsHelper.LEFTDIRECTION];
 
-                if (CompareMilitaryPower(player, rightPlayer))
-                    CollectTokens(player, rightPlayer, age);
-                if (CompareMilitaryPower(player, leftPlayer))
-                    CollectTokens(player, leftPlayer, age);
+                if (CompareMilitaryPower(p, rightPlayer))
+                    CollectTokens(p, rightPlayer, age);
+                if (CompareMilitaryPower(p, leftPlayer))
+                    CollectTokens(p, leftPlayer, age);
             }
         }
 

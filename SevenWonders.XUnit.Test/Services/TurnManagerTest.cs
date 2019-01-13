@@ -45,7 +45,7 @@ namespace SevenWonders.UnitTest.Services
             });
             player1.SetWonder(WonderFactory.CreateWonder(WonderName.StatueOfZeusInOlimpia, WonderBoardSide.A));
             player1.ReceiveCoin(ConstantValues.INITIAL_COINS);
-            player1.InitializeTurnData();
+            player1.ResetData();
             #endregion
 
             #region Player 2
@@ -58,7 +58,7 @@ namespace SevenWonders.UnitTest.Services
             });
             players[1].SetWonder(WonderFactory.CreateWonder(WonderName.LighthouseOfAlexandria, WonderBoardSide.A));
             players[1].ReceiveCoin(ConstantValues.INITIAL_COINS);
-            players[1].InitializeTurnData();
+            players[1].ResetData();
             #endregion
 
             #region Player 3
@@ -71,7 +71,7 @@ namespace SevenWonders.UnitTest.Services
             });
             players[2].SetWonder(WonderFactory.CreateWonder(WonderName.TempleOfArthemisInEphesus, WonderBoardSide.A));
             players[2].ReceiveCoin(ConstantValues.INITIAL_COINS);
-            players[2].InitializeTurnData();
+            players[2].ResetData();
             #endregion
         }
 
@@ -334,7 +334,7 @@ namespace SevenWonders.UnitTest.Services
         {
             var extraCoins = 5;
             players[0].ReceiveCoin(extraCoins);
-            players[0].InitializeTurnData();
+            players[0].ResetData();
             //Player produces 2 woods
             //Buy card costing 2 clays and 1 papyrus
             players[0].Cards.Add(cards.First(c => c.Name == CardName.LumberYard));
@@ -368,7 +368,7 @@ namespace SevenWonders.UnitTest.Services
         [Theory, AutoMoqData]
         public void BuyCardBorrowingAllResources(TurnManager manager)
         {
-            players[0].InitializeTurnData();
+            players[0].ResetData();
             //Player produces 2 woods
             //Buy card costing 1 loom
             players[0].SelectableCards[0] = cards.First(c => c.Name == CardName.Apothecary);
@@ -400,7 +400,7 @@ namespace SevenWonders.UnitTest.Services
         {
             var extraCoins = 5;
             players[0].ReceiveCoin(extraCoins);
-            players[0].InitializeTurnData();
+            players[0].ResetData();
             //Player produces 2 woods
             //Buy card costing 2 clays and 1 papyrus
             players[0].ChosenAction = TurnAction.BuyCard;
@@ -467,7 +467,7 @@ namespace SevenWonders.UnitTest.Services
         public void TryBorrowingResourcesCannotPayTest(TurnManager manager)
         {
             players[0].PayCoin(ConstantValues.INITIAL_COINS);
-            players[0].InitializeTurnData();
+            players[0].ResetData();
             //Player produces 1 wood
             //Buy card costing 1 stone
             players[0].ChosenAction = TurnAction.BuyCard;

@@ -7,6 +7,7 @@ namespace SevenWonders.Services.Contracts
 {
     public interface ITurnManager
     {
+        IEnumerable<TurnPlayer> InitializeTurn(IEnumerable<GamePlayer> gamePlayers);
         void SetScope(IUnitOfWork unitOfWork);
         void Play(IList<TurnPlayer> players, IList<StructureCard> discardedCards, Age age);
         void GetMultipleTimesRewards(IList<TurnPlayer> players, IList<StructureCard> discardedCards, int turn, Age age);

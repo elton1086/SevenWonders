@@ -19,15 +19,8 @@ namespace SevenWonders.UnitTest.Entities
     /// </summary>
     public class PlayerTest
     {
-        GamePlayer player;
-
-        public PlayerTest()
-        {
-            player = new TurnPlayer("joão");
-        }
-
         [Theory, AutoMoqData]
-        public void CheckResourceAllAvailableTest([Frozen]IFixture fixture)
+        public void CheckResourceAllAvailableTest([Frozen]IFixture fixture, GamePlayer player)
         {
             AddResourceAvailabilityTestCards(player, fixture);
             player.SetWonder(new MausoleumWonder(WonderBoardSide.A));
@@ -45,7 +38,7 @@ namespace SevenWonders.UnitTest.Entities
         }
 
         [Theory, AutoMoqData]
-        public void CheckResourceAvailabilityShareableMissingPapyrusTest([Frozen]IFixture fixture)
+        public void CheckResourceAvailabilityShareableMissingPapyrusTest([Frozen]IFixture fixture, GamePlayer player)
         {
             AddResourceAvailabilityTestCards(player, fixture);
             player.SetWonder(new MausoleumWonder(WonderBoardSide.A));
@@ -64,7 +57,7 @@ namespace SevenWonders.UnitTest.Entities
         }
 
         [Theory, AutoMoqData]
-        public void CheckResourceAvailabilityUseWonderEffectsTest([Frozen]IFixture fixture)
+        public void CheckResourceAvailabilityUseWonderEffectsTest([Frozen]IFixture fixture, GamePlayer player)
         {
             AddResourceAvailabilityTestCards(player, fixture);
             player.SetWonder(new LighthouseWonder(WonderBoardSide.A));
@@ -84,7 +77,7 @@ namespace SevenWonders.UnitTest.Entities
         }
 
         [Theory, AutoMoqData]
-        public void CheckResourceAvailabilityTooManyTest([Frozen]IFixture fixture)
+        public void CheckResourceAvailabilityTooManyTest([Frozen]IFixture fixture, GamePlayer player)
         {
             AddResourceAvailabilityTestCards(player, fixture);
             player.SetWonder(new LighthouseWonder(WonderBoardSide.A));
@@ -112,7 +105,7 @@ namespace SevenWonders.UnitTest.Entities
         }
 
         [Theory, AutoMoqData]
-        public void CheckResourceAvailabilityTooManyShareableTest([Frozen]IFixture fixture)
+        public void CheckResourceAvailabilityTooManyShareableTest([Frozen]IFixture fixture, GamePlayer player)
         {
             AddResourceAvailabilityTestCards(player, fixture);
             player.SetWonder(new MausoleumWonder(WonderBoardSide.B));
@@ -139,7 +132,7 @@ namespace SevenWonders.UnitTest.Entities
         }
 
         [Theory, AutoMoqData]
-        public void HasDicountToOneSideOnlyForRawMaterialTypeTest([Frozen]IFixture fixture)
+        public void HasDicountToOneSideOnlyForRawMaterialTypeTest([Frozen]IFixture fixture, GamePlayer player)
         {
             player.Cards.Add(StructureCardFactory.CreateStructureCard(fixture.Build<CardMapping>()
                 .With(c => c.Type, StructureType.Commercial)
@@ -158,7 +151,7 @@ namespace SevenWonders.UnitTest.Entities
         }
 
         [Theory, AutoMoqData]
-        public void HasDicountBothTest([Frozen]IFixture fixture)
+        public void HasDicountBothTest([Frozen]IFixture fixture, GamePlayer player)
         {
             player.Cards.Add(StructureCardFactory.CreateStructureCard(fixture.Build<CardMapping>()
                 .With(c => c.Type, StructureType.Commercial)
@@ -175,8 +168,8 @@ namespace SevenWonders.UnitTest.Entities
             Assert.True(player.HasDiscount(PlayerDirection.ToTheRight, TradeDiscountType.ManufacturedGood));
         }
 
-        [Fact]
-        public void HasDicountUseWonderBoardTest()
+        [Theory, AutoMoqData]
+        public void HasDicountUseWonderBoardTest(GamePlayer player)
         {            
             player.SetWonder(new StatueOfZeusWonder(WonderBoardSide.B));
             player.Wonder.BuildStage();

@@ -1,5 +1,4 @@
 ﻿using SevenWonders.BaseEntities;
-using SevenWonders.Contracts;
 using System.Collections.Generic;
 
 namespace SevenWonders.Entities
@@ -8,75 +7,35 @@ namespace SevenWonders.Entities
     {
         public StructureCard(StructureType type, CardName name, int playersCount, Age age, IList<ResourceType> resourceCosts, IList<CardName> cardCosts, IList<Effect> effects)
         {
-            this.type = type;
-            this.name = name;
-            this.playersCount = playersCount;
-            this.age = age;
-            if (resourceCosts == null)
-                this.resourceCosts = new List<ResourceType>();
-            else
-                this.resourceCosts = resourceCosts;
+            Type = type;
+            Name = name;
+            PlayersCount = playersCount;
+            Age = age;
 
-            if (cardCosts == null)
-                this.cardCosts = new List<CardName>();
-            else
-                this.cardCosts = cardCosts;
+            if (resourceCosts != null)
+                ResourceCosts = resourceCosts;
 
-            if (effects == null)
-                this.production = new List<Effect>();
-            else
-                this.production = effects;
+            if (cardCosts != null)
+                CardCosts = cardCosts;
+
+            if (effects != null)
+                Production = effects;
         }
 
-        protected StructureType type;
-        protected CardName name;
-        protected int playersCount;
-        protected Age age;
-        protected IList<ResourceType> resourceCosts;
-        protected IList<CardName> cardCosts;
-        protected IList<Effect> production;
-
-        public StructureType Type
-        {
-            get { return type; }
-        }
-
-        public CardName Name
-        {
-            get { return name; }
-        }
-
-        public int PlayersCount
-        {
-            get { return playersCount; }
-        }
-
-        public Age Age
-        {
-            get { return age; }
-        }
-
-        public IList<ResourceType> ResourceCosts
-        {
-            get { return resourceCosts; }
-        }
-
-        public IList<CardName> CardCosts
-        {
-            get { return cardCosts; }
-        }
-
-        public IList<Effect> Production
-        {
-            get { return production; }
-        }
+        public StructureType Type { get; private set; }
+        public CardName Name { get; private set; }
+        public int PlayersCount { get; private set; }
+        public Age Age { get; private set; }
+        public IList<ResourceType> ResourceCosts { get; private set; } = new List<ResourceType>();
+        public IList<CardName> CardCosts { get; private set; } = new List<CardName>();
+        public IList<Effect> Production { get; private set; } = new List<Effect>();
 
         public IList<Effect> StandaloneEffect
         {
             get
             {
-                if (production.Count == 1)
-                    return production;
+                if (Production.Count == 1)
+                    return Production;
                 return CheckSpecialCondition(true);
             }
         }
@@ -85,7 +44,7 @@ namespace SevenWonders.Entities
         {
             get
             {
-                if (production.Count > 1)
+                if (Production.Count > 1)
                     return CheckSpecialCondition(false);
                 return new List<Effect>();
             }
@@ -101,7 +60,7 @@ namespace SevenWonders.Entities
             if (lookForStandalone)
                 return new List<Effect>();
             else
-                return production;
+                return Production;
         }
     }
 }

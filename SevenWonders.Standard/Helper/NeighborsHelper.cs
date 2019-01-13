@@ -13,9 +13,9 @@ namespace SevenWonders.Helper
         /// <param name="players"></param>
         /// <param name="current"></param>
         /// <returns></returns>
-        public static IDictionary<string, Player> GetNeighbors(IList<Player> players, Player current)
+        public static IDictionary<string, TPlayer> GetNeighbors<TPlayer>(this TPlayer current, IList<TPlayer> players) where TPlayer : Player
         {
-            var result = new Dictionary<string, Player>();
+            var result = new Dictionary<string, TPlayer>();
             var index = players.IndexOf(current);
             int right = 0, left = 0;
 

@@ -16,10 +16,10 @@ namespace SevenWonders.Entities
 
         protected override IList<Effect> CheckSpecialCondition(bool lookForStandalone)
         {
-            if (!production.Any(e => Enumerator.ContainsEnumeratorValue<VictoryPointType>((int)e.Type)))
+            if (!Production.Any(e => Enumerator.ContainsEnumeratorValue<VictoryPointType>((int)e.Type)))
                 return base.CheckSpecialCondition(lookForStandalone);
             if (lookForStandalone)
-                return production;
+                return Production;
             else
                 return new List<Effect>();
         }

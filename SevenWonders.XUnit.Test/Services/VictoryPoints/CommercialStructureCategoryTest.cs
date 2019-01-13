@@ -46,7 +46,7 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             };
         }
 
-        [Theory, AutoMoqData]
+        [Theory, AutoBaseGameSetupData]
         public void ComputePointsByWonderStageBuiltTest(CommercialStructuresCategory pointsCategory)
         {
             players[0].Wonder.BuildStage();
