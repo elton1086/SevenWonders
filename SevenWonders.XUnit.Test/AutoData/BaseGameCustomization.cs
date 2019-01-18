@@ -1,31 +1,20 @@
 ﻿using AutoFixture;
 using SevenWonders.Entities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace SevenWonders.XUnit.Test.AutoData
 {
-    public class BaseGameCustomization : ICustomization
+    public class BaseGameCustomization : GamePlayerCustomization
     {
-        private readonly int totalPlayers;
+        public BaseGameCustomization(int totalPlayers) : base(totalPlayers)
+        { }
 
-        public BaseGameCustomization(int totalPlayers)
+        public override void Customize(IFixture fixture)
         {
-            this.totalPlayers = totalPlayers;
-        }
-
-        public void Customize(IFixture fixture)
-        {
-            var players = fixture
-                .Build<GamePlayer>()
-                .Without(p => p.VictoryPoints)
-                .CreateMany(totalPlayers)
-                .ToList();
-
-            fixture.Register(() => players);
-
-            fixture.Register(() => players.Select(p => new TurnPlayer(p)).ToList());
+            base.Customize(fixture);
+            var players = fixture.Create<List<GamePlayer>>();
+            fixture.Register(() => players.Select(p =>  new TurnPlayer(p)).ToList());
         }
     }
 }

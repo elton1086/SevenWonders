@@ -29,7 +29,7 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             };
         }
 
-        [Theory, AutoBaseGameSetupData]
+        [Theory, AutoGameSetupData]
         public void ComputeTest(GuildsCategory pointsCategory, List<GamePlayer> players)
         {
             var player1 = players[0];

@@ -1,11 +1,5 @@
 ﻿using SevenWonders.BaseEntities;
-using SevenWonders.Contracts;
 using SevenWonders.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SevenWonders.Factories
 {

@@ -11,7 +11,7 @@ namespace SevenWonders.Entities
         protected WonderBoardSide selectedSide;
         private IList<IWonderStage> stages;
 
-        public BaseWonder(WonderBoardSide boardSide)
+        protected BaseWonder(WonderBoardSide boardSide)
         {
             this.selectedSide = boardSide;
             switch (selectedSide)

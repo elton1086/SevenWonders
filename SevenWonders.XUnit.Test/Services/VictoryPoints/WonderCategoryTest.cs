@@ -11,7 +11,7 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
 {
     public class WonderCategoryTest
     {
-        [Theory, AutoBaseGameSetupData]
+        [Theory, AutoGameSetupData]
         public void ComputeTest(WonderCategory pointsCategory, List<GamePlayer> players)
         {
             var player1 = players[0];

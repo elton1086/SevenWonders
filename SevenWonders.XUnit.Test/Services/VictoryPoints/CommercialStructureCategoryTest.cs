@@ -28,7 +28,7 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             };
         }
 
-        [Theory, AutoBaseGameSetupData]
+        [Theory, AutoGameSetupData]
         public void ComputePointsByWonderStageBuiltTest(CommercialStructuresCategory pointsCategory, List<GamePlayer> players)
         {
             players[0].SetWonder(WonderFactory.CreateWonder(WonderName.StatueOfZeusInOlimpia, WonderBoardSide.A));
@@ -50,7 +50,7 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             Assert.Equal(0, players[2].VictoryPoints);
         }
 
-        [Theory, AutoBaseGameSetupData]
+        [Theory, AutoGameSetupData]
         public void ComputePointsByCommercialTest(CommercialStructuresCategory pointsCategory, List<GamePlayer> players)
         {
             var cards = CreateCards();
@@ -70,7 +70,7 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             Assert.Equal(2, players[2].VictoryPoints);
         }
 
-        [Theory, AutoBaseGameSetupData]
+        [Theory, AutoGameSetupData]
         public void ComputePointsByRawMaterialTest(CommercialStructuresCategory pointsCategory, List<GamePlayer> players)
         {
             var cards = CreateCards();
@@ -89,7 +89,7 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             Assert.Equal(0, players[2].VictoryPoints);
         }
 
-        [Theory, AutoBaseGameSetupData]
+        [Theory, AutoGameSetupData]
         public void ComputePointsByManufacturedGoodTest(CommercialStructuresCategory pointsCategory, List<GamePlayer> players)
         {
             var cards = CreateCards();
@@ -108,7 +108,7 @@ namespace SevenWonders.UnitTest.Services.VictoryPoints
             Assert.Equal(0, players[2].VictoryPoints);
         }
 
-        [Theory, AutoBaseGameSetupData]
+        [Theory, AutoGameSetupData]
         public void ComputePointsByManyTypesTest(CommercialStructuresCategory pointsCategory, List<GamePlayer> players)
         {
             var cards = CreateCards();

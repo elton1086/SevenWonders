@@ -1,6 +1,5 @@
 ﻿using SevenWonders.BaseEntities;
 using SevenWonders.CardGenerator;
-using SevenWonders.Contracts;
 using SevenWonders.Entities;
 using System.Linq;
 

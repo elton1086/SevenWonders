@@ -112,7 +112,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(5, output2.Count(s => s == ScientificSymbol.Gear));
         }
 
-        [Theory, AutoBaseGameSetupData]
+        [Theory, AutoGameSetupData]
         public void ComputeScientificCardsTest(ScientificStructuresCategory pointsCategory, List<GamePlayer> players)
         {
             var cards = CreateCards();

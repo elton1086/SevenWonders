@@ -1,4 +1,6 @@
-﻿using SevenWonders.BaseEntities;
+﻿using AutoFixture;
+using AutoFixture.Xunit2;
+using SevenWonders.BaseEntities;
 using SevenWonders.Contracts;
 using SevenWonders.Entities;
 using SevenWonders.Extensions;
@@ -15,7 +17,7 @@ namespace SevenWonders.UnitTest.Services
 {
     public class TurnManagerTest
     {
-        IEnumerable<StructureCard> cards;
+        List<StructureCard> cards;
 
         public TurnManagerTest()
         {
@@ -74,46 +76,26 @@ namespace SevenWonders.UnitTest.Services
             //#endregion
         }
 
-        private void CreateCards()
+        [Theory, AutoGameSetupData(3)]
+        public void MoveSelectableCardsToLeftTest([Frozen]IFixture fixture,
+            List<TurnPlayer> players)
         {
-            cards = new List<StructureCard>
-            {
-                new CommercialCard(CardName.Caravansery, 3, Age.II, new List<ResourceType>{ ResourceType.Wood, ResourceType.Wood }, new List<CardName> { CardName.Marketplace }, new List<Effect> { new Effect(EffectType.Clay), new Effect(EffectType.Wood), new Effect(EffectType.Stone), new Effect(EffectType.Ore) }),
-                new RawMaterialCard(CardName.LumberYard, 4, Age.I, null, null, new List<Effect> { new Effect(EffectType.Wood) }),
-                new RawMaterialCard(CardName.TimberYard, 3, Age.I, new List<ResourceType>{ ResourceType.Coin }, null, new List<Effect> { new Effect(EffectType.Stone), new Effect(EffectType.Wood) }),
-                new RawMaterialCard(CardName.Foundry, 3, Age.II, new List<ResourceType>{ ResourceType.Coin }, null, new List<Effect> { new Effect(EffectType.Ore), new Effect(EffectType.Ore) }),
-                new ScientificCard(CardName.Workshop, 3, Age.I, new List<ResourceType>{ ResourceType.Glass }, null, new List<Effect> { new Effect(EffectType.Gear) }),
-                new ScientificCard(CardName.Laboratory, 3, Age.II, new List<ResourceType>{ ResourceType.Clay, ResourceType.Clay, ResourceType.Papyrus }, new List<CardName> { CardName.Workshop}, new List<Effect> { new Effect(EffectType.Gear) }),
-                new RawMaterialCard(CardName.TreeFarm, 6, Age.I, new List<ResourceType>{ ResourceType.Coin }, null, new List<Effect> { new Effect(EffectType.Clay), new Effect(EffectType.Wood) }),
-                new CivilianCard(CardName.Temple, 3, Age.II, new List<ResourceType>{ ResourceType.Clay, ResourceType.Wood, ResourceType.Glass }, new List<CardName> { CardName.Altar}, new List<Effect> { new Effect(EffectType.VictoryPoint, 3) }),
-                new ManufacturedGoodCard(CardName.Glassworks, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Glass) }),
-                new RawMaterialCard(CardName.ClayPool, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Clay) }),
-                new RawMaterialCard(CardName.Brickyard, 3, Age.II, new List<ResourceType>{ ResourceType.Coin }, null, new List<Effect> { new Effect(EffectType.Clay, 2) }),
-                new RawMaterialCard(CardName.OreVein, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Ore) }),
-                new CommercialCard(CardName.WestTradingPost, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.BuyRawMaterialDiscount, 1, PlayerDirection.ToTheLeft) }),
-                new CivilianCard(CardName.Baths, 3, Age.I, new List<ResourceType>{ ResourceType.Stone }, null, new List<Effect> { new Effect(EffectType.VictoryPoint, 3) }),
-                new RawMaterialCard(CardName.StonePit, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Stone) }),
-                new MilitaryCard(CardName.Barracks, 3, Age.I, new List<ResourceType>{ ResourceType.Ore }, null, new List<Effect> { new Effect(EffectType.Shield) }),
-                new ScientificCard(CardName.Apothecary, 3, Age.I, new List<ResourceType>{ ResourceType.Loom }, null, new List<Effect> { new Effect(EffectType.Compass) }),
-                new ManufacturedGoodCard(CardName.Loom, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Loom) }),
-                new CommercialCard(CardName.Vineyard, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.CoinPerRawMaterialCard, 1, PlayerDirection.Myself | PlayerDirection.ToTheLeft | PlayerDirection.ToTheRight) }),
-                new CommercialCard(CardName.Arena, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.CoinPerWonderStageBuilt, 3, PlayerDirection.Myself) }),
-            };
-        }
+            players[0].SetSelectableCards(fixture.CreateMany<StructureCard>().ToList());
+            players[1].SetSelectableCards(fixture.CreateMany<StructureCard>().ToList());
+            players[2].SetSelectableCards(fixture.CreateMany<StructureCard>().ToList());
 
-        [Theory, AutoBaseGameSetupData(3)]
-        public void MoveSelectableCardsToLeftTest(List<TurnPlayer> players)
-        {
             var cardOne = players[0].SelectableCards[0].Name;
             var cardTwo = players[1].SelectableCards[0].Name;
             var cardThree = players[2].SelectableCards[0].Name;
+
             players.MoveSelectableCards(Age.I);
+
             Assert.Equal(cardOne, players[1].SelectableCards[0].Name);
             Assert.Equal(cardTwo, players[2].SelectableCards[0].Name);
             Assert.Equal(cardThree, players[0].SelectableCards[0].Name);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void MoveSelectableCardsToRightTest(List<TurnPlayer> players)
         {
             var cardOne = players[0].SelectableCards[0].Name;
@@ -125,7 +107,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(cardThree, players[1].SelectableCards[0].Name);
         }
 
-        [Theory, AutoBaseGameSetupData(1)]
+        [Theory, AutoGameSetupData(1)]
         public void SellCardTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -142,7 +124,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.DoesNotContain(player.Player.Cards, c => c.Name == CardName.Caravansery);
         }
 
-        [Theory, AutoBaseGameSetupData(1)]
+        [Theory, AutoGameSetupData(1)]
         public void BuyCardPayCoin(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -158,7 +140,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS - 1, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(1)]
+        [Theory, AutoGameSetupData(1)]
         public void BuyCardWithOwnResourcesTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -174,7 +156,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(1)]
+        [Theory, AutoGameSetupData(1)]
         public void BuyCardForFreeTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -189,7 +171,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Contains(player.Player.Cards, c => c.Name == CardName.Laboratory);
         }
 
-        [Theory, AutoBaseGameSetupData(1)]
+        [Theory, AutoGameSetupData(1)]
         public void BuyCardUsingSpecialCaseTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -207,7 +189,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(Age.II, (Age)player.Player.GetNonResourceEffects().First(e => e.Type == EffectType.PlayCardForFreeOncePerAge).Info);
         }
 
-        [Theory, AutoBaseGameSetupData(1)]
+        [Theory, AutoGameSetupData(1)]
         public void BuyCardUsingChoosableResouceTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -225,7 +207,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(2)]
+        [Theory, AutoGameSetupData(2)]
         public void BuyCardUsingChoosableResouceFromWonderStageTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players[1];
@@ -246,7 +228,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(1)]
+        [Theory, AutoGameSetupData(1)]
         public void BuyCardUsingCommercialCardReourceTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -265,7 +247,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Contains(player.Player.Cards, c => c.Name == CardName.Baths);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void TryBuyCardUsingChoosableResouceTwiceTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players[2];
@@ -293,7 +275,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(2, player.Player.Cards.Count);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void TryBuyCardMissingResourceTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -314,7 +296,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS + ConstantValues.SELL_CARD_COINS, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(1)]
+        [Theory, AutoGameSetupData(1)]
         public void TryBuySameCardAgainTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -331,7 +313,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS + ConstantValues.SELL_CARD_COINS, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void BuyCardBorrowingResources(TurnManager manager, List<TurnPlayer> players)
         {
             var extraCoins = 5;
@@ -368,7 +350,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS + ConstantValues.COIN_VALUE_FOR_SHARE_DEFAULT, players[2].Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void BuyCardBorrowingAllResources(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -399,7 +381,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS + ConstantValues.COIN_VALUE_FOR_SHARE_DEFAULT, players[2].Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void BuyCardBorrowingChoosableResource(TurnManager manager, List<TurnPlayer> players)
         {
             var extraCoins = 5;
@@ -436,7 +418,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS + ConstantValues.COIN_VALUE_FOR_SHARE_DEFAULT, players[2].Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void BuyCardBorrowingResourcesWithDiscountToRight(TurnManager manager, List<TurnPlayer> players)
         {
             var extraCoins = 5;
@@ -469,7 +451,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS + ConstantValues.COIN_VALUE_FOR_SHARE_DISCOUNT, players[1].Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void TryBorrowingResourcesCannotPayTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -502,7 +484,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS, players[1].Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void TryBorrowingResourcesPlayedThisTurnTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -531,7 +513,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void TryBorrowingResourcesFromCommercialCardsFailsTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -561,7 +543,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(1)]
+        [Theory, AutoGameSetupData(1)]
         public void BuildStageTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -578,7 +560,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void TryBuildStageMissingResourcesTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -600,7 +582,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS + ConstantValues.SELL_CARD_COINS, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void BuildStageBorrowingResourcesFromLeft(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
@@ -627,7 +609,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(ConstantValues.INITIAL_COINS + ConstantValues.COIN_VALUE_FOR_SHARE_DEFAULT, players[2].Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void PlaySeventhCardGetRewardsWrongTurnTest(TurnManager manager, List<TurnPlayer> players)
         {
             players[0].ExecutedAction = TurnAction.SellCard;
@@ -654,7 +636,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.DoesNotContain(player.Player.Cards, c => c.Name == chosenCard.Name);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void PlaySeventhCardGetRewardsTest(TurnManager manager, List<TurnPlayer> players)
         {
             players[0].ExecutedAction = TurnAction.SellCard;
@@ -681,7 +663,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Contains(player.Player.Cards, c => c.Name == chosenCard.Name);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void CoinPerRawMaterialCardGetRewardsTest(TurnManager manager, List<TurnPlayer> players)
         {
             players[0].ExecutedAction = TurnAction.BuyCard;
@@ -714,7 +696,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(expectedCoins, player.Player.Coins);
         }
 
-        [Theory, AutoBaseGameSetupData(3)]
+        [Theory, AutoGameSetupData(3)]
         public void CoinPerWonderStageBuiltCardGetRewardsTest(TurnManager manager, List<TurnPlayer> players)
         {
             players[0].ExecutedAction = TurnAction.BuyCard;
@@ -764,30 +746,31 @@ namespace SevenWonders.UnitTest.Services
         //    Assert.Contains(player1.Cards, c => c.Name == cardName);
         //}
 
-        //[Theory, AutoBaseGameSetupData(1)]
-        //public void CoinPerWonderStageBuiltCardGetRewardsTest(TurnManager manager, List<TurnPlayer> players)
-        //{
-        //    player.ExecutedAction = TurnAction.BuyCard;
-        //    players[1].ExecutedAction = TurnAction.SellCard;
-        //    players[2].ExecutedAction = TurnAction.SellCard;
-
-        //    var player = player;
-        //    player.Player.Wonder.BuildStage();
-        //    player.Player.Wonder.BuildStage();
-
-        //    //Set to only when card left to choose
-        //    player.SetSelectableCards(cards.Where(c => c.Name == CardName.Arena).ToList());
-        //    player.SelectedCard = player.SelectableCards.First();
-        //    player.ChosenAction = TurnAction.BuyCard;
-
-        //    var expectedCoins = player.Player.Coins + 6;
-
-        //    var uow = new UnitOfWork();
-        //    manager.SetScope(uow);
-        //    manager.GetRewards(players, new List<StructureCard>(), Age.I);
-        //    uow.Commit();
-
-        //    Assert.Equal(expectedCoins, player.Player.Coins);
-        //}
+        private IEnumerable<StructureCard> CreateCards()
+        {
+            return new List<StructureCard>
+            {
+                new CommercialCard(CardName.Caravansery, 3, Age.II, new List<ResourceType>{ ResourceType.Wood, ResourceType.Wood }, new List<CardName> { CardName.Marketplace }, new List<Effect> { new Effect(EffectType.Clay), new Effect(EffectType.Wood), new Effect(EffectType.Stone), new Effect(EffectType.Ore) }),
+                new RawMaterialCard(CardName.LumberYard, 4, Age.I, null, null, new List<Effect> { new Effect(EffectType.Wood) }),
+                new RawMaterialCard(CardName.TimberYard, 3, Age.I, new List<ResourceType>{ ResourceType.Coin }, null, new List<Effect> { new Effect(EffectType.Stone), new Effect(EffectType.Wood) }),
+                new RawMaterialCard(CardName.Foundry, 3, Age.II, new List<ResourceType>{ ResourceType.Coin }, null, new List<Effect> { new Effect(EffectType.Ore), new Effect(EffectType.Ore) }),
+                new ScientificCard(CardName.Workshop, 3, Age.I, new List<ResourceType>{ ResourceType.Glass }, null, new List<Effect> { new Effect(EffectType.Gear) }),
+                new ScientificCard(CardName.Laboratory, 3, Age.II, new List<ResourceType>{ ResourceType.Clay, ResourceType.Clay, ResourceType.Papyrus }, new List<CardName> { CardName.Workshop}, new List<Effect> { new Effect(EffectType.Gear) }),
+                new RawMaterialCard(CardName.TreeFarm, 6, Age.I, new List<ResourceType>{ ResourceType.Coin }, null, new List<Effect> { new Effect(EffectType.Clay), new Effect(EffectType.Wood) }),
+                new CivilianCard(CardName.Temple, 3, Age.II, new List<ResourceType>{ ResourceType.Clay, ResourceType.Wood, ResourceType.Glass }, new List<CardName> { CardName.Altar}, new List<Effect> { new Effect(EffectType.VictoryPoint, 3) }),
+                new ManufacturedGoodCard(CardName.Glassworks, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Glass) }),
+                new RawMaterialCard(CardName.ClayPool, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Clay) }),
+                new RawMaterialCard(CardName.Brickyard, 3, Age.II, new List<ResourceType>{ ResourceType.Coin }, null, new List<Effect> { new Effect(EffectType.Clay, 2) }),
+                new RawMaterialCard(CardName.OreVein, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Ore) }),
+                new CommercialCard(CardName.WestTradingPost, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.BuyRawMaterialDiscount, 1, PlayerDirection.ToTheLeft) }),
+                new CivilianCard(CardName.Baths, 3, Age.I, new List<ResourceType>{ ResourceType.Stone }, null, new List<Effect> { new Effect(EffectType.VictoryPoint, 3) }),
+                new RawMaterialCard(CardName.StonePit, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Stone) }),
+                new MilitaryCard(CardName.Barracks, 3, Age.I, new List<ResourceType>{ ResourceType.Ore }, null, new List<Effect> { new Effect(EffectType.Shield) }),
+                new ScientificCard(CardName.Apothecary, 3, Age.I, new List<ResourceType>{ ResourceType.Loom }, null, new List<Effect> { new Effect(EffectType.Compass) }),
+                new ManufacturedGoodCard(CardName.Loom, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.Loom) }),
+                new CommercialCard(CardName.Vineyard, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.CoinPerRawMaterialCard, 1, PlayerDirection.Myself | PlayerDirection.ToTheLeft | PlayerDirection.ToTheRight) }),
+                new CommercialCard(CardName.Arena, 3, Age.I, null, null, new List<Effect> { new Effect(EffectType.CoinPerWonderStageBuilt, 3, PlayerDirection.Myself) }),
+            };
+        }
     }
 }

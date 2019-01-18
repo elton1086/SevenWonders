@@ -20,7 +20,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.All(players, p => Assert.Equal(3, p.Coins));
         }
 
-        [Theory, AutoBaseGameSetupData(4)]
+        [Theory, AutoGameSetupData(5)]
         public void ResolveMilitaryConflictsForAgeOneTest(TradeManager manager, List<GamePlayer> players)
         {
             var cards = CreateCards();
@@ -41,7 +41,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(-2, players[4].ConflictTokenSum);
         }
 
-        [Theory, AutoBaseGameSetupData(5)]
+        [Theory, AutoGameSetupData(5)]
         public void ResolveMilitaryConflictsForAgeTwoTest(TradeManager manager, List<GamePlayer> players)
         {
             var cards = CreateCards();
@@ -65,7 +65,7 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(2, players[4].ConflictTokenSum);
         }
 
-        [Theory, AutoBaseGameSetupData(5)]
+        [Theory, AutoGameSetupData(5)]
         public void ResolveMilitaryConflictsForAgeThreeWithWonderTest(TradeManager manager, List<GamePlayer> players)
         {
             var cards = CreateCards();
@@ -85,6 +85,7 @@ namespace SevenWonders.UnitTest.Services
             players[2].Cards.Add(cards.First(c => c.Name == CardName.Circus));
             players[3].Cards.Add(cards.First(c => c.Name == CardName.Circus));
 
+            players[0].SetWonder(WonderFactory.CreateWonder(WonderName.ColossusOfRhodes, WonderBoardSide.B));
             players[0].Wonder.BuildStage();
             players[0].Wonder.BuildStage();
 
