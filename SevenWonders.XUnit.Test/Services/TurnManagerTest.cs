@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.Xunit2;
 using SevenWonders.BaseEntities;
+using SevenWonders.CardGenerator;
 using SevenWonders.Contracts;
 using SevenWonders.Entities;
 using SevenWonders.Extensions;
@@ -76,14 +77,9 @@ namespace SevenWonders.UnitTest.Services
             //#endregion
         }
 
-        [Theory, AutoGameSetupData(3)]
-        public void MoveSelectableCardsToLeftTest([Frozen]IFixture fixture,
-            List<TurnPlayer> players)
+        [Theory, AutoBaseGameData(3)]
+        public void MoveSelectableCardsToLeftTest(List<TurnPlayer> players)
         {
-            players[0].SetSelectableCards(fixture.CreateMany<StructureCard>().ToList());
-            players[1].SetSelectableCards(fixture.CreateMany<StructureCard>().ToList());
-            players[2].SetSelectableCards(fixture.CreateMany<StructureCard>().ToList());
-
             var cardOne = players[0].SelectableCards[0].Name;
             var cardTwo = players[1].SelectableCards[0].Name;
             var cardThree = players[2].SelectableCards[0].Name;
@@ -107,37 +103,43 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(cardThree, players[1].SelectableCards[0].Name);
         }
 
-        [Theory, AutoGameSetupData(1)]
+        [Theory, AutoBaseGameData(1)]
         public void SellCardTest(TurnManager manager, List<TurnPlayer> players)
         {
             var player = players.First();
-            player.ChosenAction = TurnAction.SellCard;
-            player.SelectedCard = player.SelectableCards.FirstOrDefault(c => c.Name == CardName.Caravansery);
+            var selectedCard = player.SelectableCards.First();
+            var expectedCoins = player.Player.Coins + ConstantValues.SELL_CARD_COINS;
+
+            player.ChosenAction = TurnAction.SellCard;            
+            player.SelectedCard = selectedCard;
 
             var uow = new UnitOfWork();
             manager.SetScope(uow);
             var discarded = new List<StructureCard>();
             manager.Play(new List<TurnPlayer> { player }, discarded, Age.II);
             uow.Commit();
-            Assert.Contains(discarded, c => c.Name == CardName.Caravansery);
-            Assert.Equal(ConstantValues.INITIAL_COINS + ConstantValues.SELL_CARD_COINS, player.Player.Coins);
-            Assert.DoesNotContain(player.Player.Cards, c => c.Name == CardName.Caravansery);
+            Assert.Contains(selectedCard, discarded);
+            Assert.Equal(expectedCoins, player.Player.Coins);
+            Assert.DoesNotContain(selectedCard, player.Player.Cards);
         }
 
-        [Theory, AutoGameSetupData(1)]
-        public void BuyCardPayCoin(TurnManager manager, List<TurnPlayer> players)
+        [Theory, AutoBaseGameData(1)]
+        public void BuyCardPayCoin(TurnManager manager, List<TurnPlayer> players, List<StructureCard> cards)
         {
             var player = players.First();
-            player.ChosenAction = TurnAction.BuyCard;
-            player.SelectableCards[0] = cards.First(c => c.Name == CardName.TimberYard);
-            player.SelectedCard = player.SelectableCards.FirstOrDefault(c => c.Name == CardName.TimberYard);
+            var selectedCard = cards.First(c => c.Name == CardName.TimberYard);
+            var expectedCoins = player.Player.Coins - 1;
+
+            player.ChosenAction = TurnAction.BuyCard;            
+            player.SelectableCards[0] = selectedCard;
+            player.SelectedCard = selectedCard;
 
             var uow = new UnitOfWork();
             manager.SetScope(uow);
-            manager.Play(new List<TurnPlayer> { player }, new List<StructureCard>(), Age.II);
+            manager.Play(players, new List<StructureCard>(), Age.II);
             uow.Commit();
-            Assert.Contains(player.Player.Cards, c => c.Name == CardName.TimberYard);
-            Assert.Equal(ConstantValues.INITIAL_COINS - 1, player.Player.Coins);
+            Assert.Contains(selectedCard, player.Player.Cards);
+            Assert.Equal(expectedCoins, player.Player.Coins);
         }
 
         [Theory, AutoGameSetupData(1)]
