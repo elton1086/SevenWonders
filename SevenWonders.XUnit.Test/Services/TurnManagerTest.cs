@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using AutoFixture.Xunit2;
+using Moq;
 using SevenWonders.BaseEntities;
 using SevenWonders.CardGenerator;
 using SevenWonders.Contracts;
@@ -124,15 +125,19 @@ namespace SevenWonders.UnitTest.Services
         }
 
         [Theory, AutoBaseGameData(1)]
-        public void BuyCardPayCoin(TurnManager manager, List<TurnPlayer> players, List<StructureCard> cards)
+        public void BuyCardPayCoin([Frozen]Mock<ITradeManager> tradeManager, TurnManager manager, List<TurnPlayer> players, List<StructureCard> cards)
         {
             var player = players.First();
+            player.Player.ReceiveCoin(1);
+
             var selectedCard = cards.First(c => c.Name == CardName.TimberYard);
             var expectedCoins = player.Player.Coins - 1;
 
             player.ChosenAction = TurnAction.BuyCard;            
             player.SelectableCards[0] = selectedCard;
             player.SelectedCard = selectedCard;
+
+            tradeManager.Setup(m => m.BorrowResources(player, It.IsAny<GamePlayer>(), It.IsAny<GamePlayer>(), It.IsAny<IList<BorrowResourceData>>(), true)).Returns(true);
 
             var uow = new UnitOfWork();
             manager.SetScope(uow);

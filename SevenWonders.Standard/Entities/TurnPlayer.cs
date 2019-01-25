@@ -74,8 +74,7 @@ namespace SevenWonders.Entities
             {
                 if (ChosenAction != TurnAction.BuyCard)
                     return true;
-                var result = Player.Cards.Any(c => c.Name == SelectedCard.Name);
-                return result;
+                return !Player.Cards.Any(c => c.Name == SelectedCard.Name);
             }
         }
 
