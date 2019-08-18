@@ -7,7 +7,6 @@ namespace SevenWonders.Entities.Events
     public class ClearTemporaryResourceEvent : IEvent
     {
         private TurnPlayer player;
-        private IList<ResourceType> temporary;
 
         public ClearTemporaryResourceEvent(TurnPlayer player)
         {
@@ -16,7 +15,6 @@ namespace SevenWonders.Entities.Events
 
         public void Commit()
         {
-            temporary = player.TemporaryResources;
             player.ResetData();
         }
     }

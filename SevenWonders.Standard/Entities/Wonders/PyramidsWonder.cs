@@ -22,30 +22,32 @@ namespace SevenWonders.Entities
             get { return ResourceType.Stone; }
         }
 
-        protected override void CreateASideStages()
+        protected override IList<WonderStage> CreateASideStages()
         {
-            InitializeStages(3);
-
-            Stages[0].AddCostsAndEffects(new List<ResourceType> { ResourceType.Stone, ResourceType.Stone },
-                new List<Effect> { new Effect(EffectType.VictoryPoint, 3) });
-            Stages[1].AddCostsAndEffects(new List<ResourceType> { ResourceType.Wood, ResourceType.Wood, ResourceType.Wood },
-                new List<Effect> { new Effect(EffectType.VictoryPoint, 5) });
-            Stages[2].AddCostsAndEffects(new List<ResourceType> { ResourceType.Stone, ResourceType.Stone, ResourceType.Stone, ResourceType.Stone },
-                new List<Effect> { new Effect(EffectType.VictoryPoint, 7) });
+            return new List<WonderStage>
+            {
+                new WonderStage(new List<ResourceType> { ResourceType.Stone, ResourceType.Stone },
+                    new List<Effect> { new Effect(EffectType.VictoryPoint, 3) }),
+                new WonderStage(new List<ResourceType> { ResourceType.Wood, ResourceType.Wood, ResourceType.Wood },
+                    new List<Effect> { new Effect(EffectType.VictoryPoint, 5) }),
+                new WonderStage(new List<ResourceType> { ResourceType.Stone, ResourceType.Stone, ResourceType.Stone, ResourceType.Stone },
+                    new List<Effect> { new Effect(EffectType.VictoryPoint, 7) })
+            };
         }
 
-        protected override void CreateBSideStages()
+        protected override IList<WonderStage> CreateBSideStages()
         {
-            InitializeStages(4);
-
-            Stages[0].AddCostsAndEffects(new List<ResourceType> { ResourceType.Wood, ResourceType.Wood },
-                new List<Effect> { new Effect(EffectType.VictoryPoint, 3) });
-            Stages[1].AddCostsAndEffects(new List<ResourceType> { ResourceType.Stone, ResourceType.Stone, ResourceType.Stone },
-                new List<Effect> { new Effect(EffectType.VictoryPoint, 5) });
-            Stages[2].AddCostsAndEffects(new List<ResourceType> { ResourceType.Clay, ResourceType.Clay, ResourceType.Clay },
-                new List<Effect> { new Effect(EffectType.VictoryPoint, 5) });
-            Stages[3].AddCostsAndEffects(new List<ResourceType> { ResourceType.Stone, ResourceType.Stone, ResourceType.Stone, ResourceType.Stone, ResourceType.Papyrus },
-                new List<Effect> { new Effect(EffectType.VictoryPoint, 7) });
+            return new List<WonderStage>
+            {
+                new WonderStage(new List<ResourceType> { ResourceType.Wood, ResourceType.Wood },
+                    new List<Effect> { new Effect(EffectType.VictoryPoint, 3) }),
+                new WonderStage(new List<ResourceType> { ResourceType.Stone, ResourceType.Stone, ResourceType.Stone },
+                    new List<Effect> { new Effect(EffectType.VictoryPoint, 5) }),
+                new WonderStage(new List<ResourceType> { ResourceType.Clay, ResourceType.Clay, ResourceType.Clay },
+                    new List<Effect> { new Effect(EffectType.VictoryPoint, 5) }),
+                new WonderStage(new List<ResourceType> { ResourceType.Stone, ResourceType.Stone, ResourceType.Stone, ResourceType.Stone, ResourceType.Papyrus },
+                    new List<Effect> { new Effect(EffectType.VictoryPoint, 7) })
+            };
         }
     }
 }

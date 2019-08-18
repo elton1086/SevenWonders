@@ -1,26 +1,24 @@
 ﻿using SevenWonders.BaseEntities;
-using SevenWonders.Contracts;
 using System.Collections.Generic;
 
 namespace SevenWonders.Entities
 {
     public abstract class BaseWonder
     {
-        protected int stagesBuilt;
+        protected IList<WonderStage> stages = new List<WonderStage>();
+
         protected List<Effect> effectsInUse = new List<Effect>();
-        protected WonderBoardSide selectedSide;
-        private IList<IWonderStage> stages;
 
         protected BaseWonder(WonderBoardSide boardSide)
         {
-            this.selectedSide = boardSide;
-            switch (selectedSide)
+            SelectedSide = boardSide;
+            switch (SelectedSide)
             {
                 case WonderBoardSide.A:
-                    CreateASideStages();
+                    stages = CreateASideStages() ?? new List<WonderStage>();
                     break;
                 case WonderBoardSide.B:
-                    CreateBSideStages();
+                    stages = CreateBSideStages() ?? new List<WonderStage>();
                     break;
                 default:
                     break;
@@ -32,39 +30,36 @@ namespace SevenWonders.Entities
 
         public int NumberOfStages
         {
-            get { return Stages.Count; }
+            get { return stages.Count; }
         }
 
-        public int StagesBuilt
-        {
-            get { return stagesBuilt; }
-        }
+        public int StagesBuilt { get; private set; }
 
-        public IWonderStage NextStage
+        public WonderStage NextStage
         {
             get
             {
-                if (stagesBuilt == Stages.Count)
+                if (StagesBuilt == stages.Count)
                     return null;
-                return Stages[stagesBuilt];
+                return stages[StagesBuilt];
             }
         }
 
-        public IWonderStage CurrentStage
+        public WonderStage CurrentStage
         {
             get
             {
-                if (stagesBuilt == 0)
+                if (StagesBuilt == 0)
                     return null;
-                return Stages[stagesBuilt - 1];
+                return stages[StagesBuilt - 1];
             }
         }
 
         public void BuildStage()
         {
-            effectsInUse.AddRange(Stages[stagesBuilt].Effects);
-            if(stagesBuilt < Stages.Count)
-                stagesBuilt++;
+            effectsInUse.AddRange(stages[StagesBuilt].Effects);
+            if(StagesBuilt < stages.Count)
+                StagesBuilt++;
         }
 
         public virtual IList<Effect> EffectsAvailable
@@ -80,28 +75,9 @@ namespace SevenWonders.Entities
             get { return new List<IList<Effect>>(); }
         }
 
-        public WonderBoardSide SelectedSide
-        {
-            get { return selectedSide; }
-        }
+        public WonderBoardSide SelectedSide { get; }
 
-        protected IList<IWonderStage> Stages
-        {
-            get
-            {
-                if (stages == null)
-                    stages = new List<IWonderStage>();
-                return stages;
-            }
-        }
-
-        protected void InitializeStages(int numberOfStages)
-        {
-            for (int i = 0; i < numberOfStages; i++)
-                Stages.Add(new WonderStage());
-        }
-
-        protected abstract void CreateASideStages();
-        protected abstract void CreateBSideStages();
+        protected abstract IList<WonderStage> CreateASideStages();
+        protected abstract IList<WonderStage> CreateBSideStages();
     }
 }

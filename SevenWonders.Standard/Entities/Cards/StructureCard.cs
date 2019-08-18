@@ -11,15 +11,9 @@ namespace SevenWonders.Entities
             Name = name;
             PlayersCount = playersCount;
             Age = age;
-
-            if (resourceCosts != null)
-                ResourceCosts = resourceCosts;
-
-            if (cardCosts != null)
-                CardCosts = cardCosts;
-
-            if (effects != null)
-                Production = effects;
+            ResourceCosts = resourceCosts ?? new List<ResourceType>();
+            CardCosts = cardCosts ?? new List<CardName>();
+            Production = effects ?? new List<Effect>();
         }
 
         public StructureType Type { get; private set; }
@@ -28,7 +22,7 @@ namespace SevenWonders.Entities
         public Age Age { get; private set; }
         public IList<ResourceType> ResourceCosts { get; private set; } = new List<ResourceType>();
         public IList<CardName> CardCosts { get; private set; } = new List<CardName>();
-        public IList<Effect> Production { get; private set; } = new List<Effect>();
+        public IList<Effect> Production { get; protected set; } = new List<Effect>();
 
         public IList<Effect> StandaloneEffect
         {

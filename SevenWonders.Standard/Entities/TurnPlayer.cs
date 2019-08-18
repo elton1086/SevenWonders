@@ -12,11 +12,11 @@ namespace SevenWonders.Entities
 
         public TurnPlayer(GamePlayer player)
         {
-            Player = player;
+            GamePlayer = player;
             ResetData();
         }
 
-        public GamePlayer Player { get; private set; }
+        public GamePlayer GamePlayer { get; private set; }
         /// <summary>
         /// Gets all the temporary resources the player has.
         /// </summary>
@@ -74,13 +74,13 @@ namespace SevenWonders.Entities
             {
                 if (ChosenAction != TurnAction.BuyCard)
                     return true;
-                return !Player.Cards.Any(c => c.Name == SelectedCard.Name);
+                return !GamePlayer.Cards.Any(c => c.Name == SelectedCard.Name);
             }
         }
 
         public IList<ResourceType> GetResourcesAvailable(bool shareableOnly)
         {
-            var resourcesAvailable = Player.GetResourcesAvailable(shareableOnly).ToList();
+            var resourcesAvailable = GamePlayer.GetResourcesAvailable(shareableOnly).ToList();
             if (shareableOnly)
                 return resourcesAvailable;
             resourcesAvailable.AddRange(TemporaryResources);
@@ -118,7 +118,7 @@ namespace SevenWonders.Entities
             SpecialCaseToUse = SpecialCaseType.None;
             ResourcesToBorrow.Clear();
             AdditionalInfo = null;
-            CoinsLeft = Player.Coins;
+            CoinsLeft = GamePlayer.Coins;
             TemporaryResources.Clear();
         }
     }

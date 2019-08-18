@@ -1,10 +1,13 @@
 ﻿using AutoFixture;
+using AutoFixture.Xunit2;
 using SevenWonders.BaseEntities;
 using SevenWonders.Contracts;
 using SevenWonders.Entities;
 using SevenWonders.Factories;
 using SevenWonders.Services;
+using SevenWonders.Services.Contracts;
 using SevenWonders.XUnit.Test.AutoData;
+using SevenWonders.XUnit.Test.Mocks;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -96,6 +99,30 @@ namespace SevenWonders.UnitTest.Services
             Assert.Equal(10, players[2].ConflictTokenSum);
             Assert.Equal(4, players[3].ConflictTokenSum);
             Assert.Equal(-2, players[4].ConflictTokenSum);
+        }
+
+        [Theory, AutoGameSetupData(3)]
+        public void BorrowingWoodFromRightOnly([Frozen]IFixture fixture, TradeManager manager, List<TurnPlayer> players)
+        {         
+            var player1 = players[0];
+            player1.GamePlayer.ReceiveCoin(2);
+            player1.ResourcesToBorrow.Add(new BorrowResourceData { ChosenNeighbor = PlayerDirection.ToTheRight, ResourceType = ResourceType.Wood });
+
+
+            var player2 = players[1];
+
+            //Produces 1 wood
+            var player3 = players[2];
+            player3.GamePlayer.Cards.Add(fixture.Build<MockCard>()
+                .With(c => c.SetEffects, new List<Effect> { new Effect(EffectType.Wood) })
+                .Create());
+
+            manager.BorrowResources(player1, player3.GamePlayer, player2.GamePlayer,
+                player1.ResourcesToBorrow, false);
+
+
+            Assert.Equal(0, player1.GamePlayer.Coins);
+            Assert.Equal(5, player3.GamePlayer.Coins);
         }
 
         private IEnumerable<StructureCard> CreateCards()
